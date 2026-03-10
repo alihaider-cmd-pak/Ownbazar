@@ -1,0 +1,15 @@
+{
+  "extends": ["web-recommended"],
+  "hints": {
+    "no-inline-styles": "off",
+    "inline-style-disabled": "off"
+  },
+  "ignoredUrls": [
+    "login.html",
+    "index.html",
+    "products-add.html",
+    "products-login.html",
+    "products-list.html",
+    "products-detail.html"
+  ]
+}

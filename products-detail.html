@@ -1,0 +1,486 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Product Details - Desktop Manager</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      body {
+        font-family: Inter, Arial;
+        background: #f3f4f6;
+        margin: 0;
+        padding: 18px;
+      }
+      .wrap {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .toolbar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .btn {
+        padding: 10px 16px;
+        border-radius: 6px;
+        border: 0;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .btn-secondary {
+        background: #ddd;
+        color: #374151;
+      }
+      .btn-secondary:hover {
+        background: #ccc;
+      }
+      .btn-danger {
+        background: #dc2626;
+        color: #fff;
+      }
+      .btn-danger:hover {
+        background: #b91c1c;
+      }
+      .card {
+        background: #fff;
+        padding: 24px;
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+      }
+      h1 {
+        margin: 0 0 6px;
+        color: #1f2937;
+      }
+      .meta {
+        color: #6b7280;
+        font-size: 14px;
+        margin-bottom: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+      .images-section {
+        grid-column: span 2;
+      }
+      .images {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .image-item {
+        width: 120px;
+        height: 120px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+      }
+      .image-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .detail-row {
+        margin-bottom: 16px;
+      }
+      .detail-label {
+        font-weight: 600;
+        color: #374151;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+      }
+      .detail-value {
+        color: #1f2937;
+        font-size: 14px;
+      }
+      .price-highlight {
+        font-size: 20px;
+        font-weight: 700;
+        color: #0ea5e9;
+      }
+      .description {
+        margin: 20px 0;
+        padding: 16px;
+        background: #f9fafb;
+        border-radius: 6px;
+        line-height: 1.5;
+        color: #374151;
+      }
+      .tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin: 12px 0;
+      }
+      .tag {
+        background: #dbeafe;
+        color: #1e40af;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 24px;
+        border-top: 1px solid #eee;
+        padding-top: 20px;
+      }
+      .msg {
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 16px;
+      }
+      .msg.success {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .msg.error {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+    </style>
+    <script src="/visitor-tracking.js"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="toolbar">
+        <button class="btn btn-secondary" onclick="goBack()">← Back to Products</button>
+      </div>
+
+      <div id="container"></div>
+    </div>
+
+    <script>
+      const API_BASE = location.protocol === 'file:' ? 'http://localhost:3000' : '';
+
+      let product = null;
+
+      async function loadProduct() {
+        try {
+          // Get product ID from URL search params
+          const params = new URLSearchParams(window.location.search);
+          let productId = params.get('id');
+
+          console.log("Current URL:", window.location.href);
+          console.log("Search params:", window.location.search);
+          console.log("Extracted product ID:", productId);
+
+          if (!productId) {
+            document.getElementById('container').innerHTML = '<div class="msg error">❌ Product ID not found. URL: ' + window.location.href + '</div>';
+            return;
+          }
+
+          const response = await fetch(API_BASE + `/api/products?id=${productId}`);
+          const data = await response.json();
+
+          if (data.success && data.product) {
+            product = data.product;
+            
+            // Track view for telemetry
+            try {
+              await fetch(API_BASE + '/api/telemetry', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId, event: 'view' })
+              }).catch(err => console.warn('Telemetry error:', err));
+            } catch (err) {
+              console.warn('Failed to track telemetry:', err);
+            }
+            
+            renderProduct();
+          } else {
+            document.getElementById('container').innerHTML = '<div class="msg error">❌ Product not found</div>';
+          }
+        } catch (err) {
+          console.error('Error loading product:', err);
+          document.getElementById('container').innerHTML = '<div class="msg error">❌ Error loading product: ' + err.message + '</div>';
+        }
+      }
+
+      function renderProduct() {
+        if (!product) return;
+
+        const images = product.images || [];
+        const tagsHtml = (product.tags || [])
+          .slice(0, 10)
+          .map(tag => `<span class="tag">${tag}</span>`)
+          .join('');
+
+        const imagesHtml = images.length > 0
+          ? images.map(img => {
+              const src = typeof img === 'string' ? img : img?.src || '';
+              return `<div class="image-item"><img src="${src}" alt="${product.name}" /></div>`;
+            }).join('')
+          : '<div class="muted" style="padding: 40px; text-align: center">No images</div>';
+
+        const html = `
+          <div class="card">
+              <h1 style="display:flex; align-items:center; gap:10px">${product.name}
+                ${product.isPremium ? '<span class="tag" style="background:#f59e0b; color:#fff; padding:4px 8px; border-radius:6px; font-size:12px">Premium</span>' : ''}
+                ${product.isLatest ? '<span class="tag" style="background:#0284c7; color:#fff; padding:4px 8px; border-radius:6px; font-size:12px">Latest</span>' : ''}
+              </h1>
+            <div class="meta">SKU: ${product.sku} | Category: ${product.category || 'N/A'}</div>
+
+            <div class="grid">
+              <div class="images-section">
+                <div class="detail-label">Product Images</div>
+                <div class="images">
+                  ${imagesHtml}
+                </div>
+              </div>
+
+              <div>
+                <div class="detail-row">
+                  <div class="detail-label">Selling Price</div>
+                  <div class="price-highlight">Rs. ${Number(product.price).toFixed(2)}</div>
+                </div>
+
+                <div class="detail-row">
+                  <div class="detail-label">Cost Price</div>
+                  <div class="detail-value">Rs. ${Number(product.costPrice || 0).toFixed(2)}</div>
+                </div>
+
+                <div class="detail-row">
+                  <div class="detail-label">Stock Quantity</div>
+                  <div class="detail-value">${product.quantity || 0} units</div>
+                </div>
+              </div>
+
+              <div>
+                <div class="detail-row">
+                  <div class="detail-label">Categories</div>
+                  <div class="detail-value">${Array.isArray(product.category) ? product.category.join(', ') : product.category || 'Uncategorized'}</div>
+                </div>
+
+                <div class="detail-row">
+                  <div class="detail-label">Created Date</div>
+                  <div class="detail-value">${new Date(product.createdAt).toLocaleDateString()}</div>
+                </div>
+              </div>
+            </div>
+
+            ${product.description ? `<div class="detail-row">
+              <div class="detail-label">Short Description</div>
+              <div class="detail-value">${product.description}</div>
+            </div>` : ''}
+
+            ${product.detailedDescription ? `<div class="description">${product.detailedDescription}</div>` : ''}
+
+            ${tagsHtml ? `<div class="detail-row">
+              <div class="detail-label">Tags</div>
+              <div class="tags">${tagsHtml}</div>
+            </div>` : ''}
+
+            <div style="border-top: 2px solid #f0f0f0; padding-top: 16px; margin-top: 20px;">
+              <div class="detail-label" style="margin-bottom: 12px;">🔐 Admin-Only Information</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                <div class="detail-row">
+                  <div class="detail-label">Product Code</div>
+                  <div class="detail-value" style="word-break: break-all;">${product.adminCode || '—'}</div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label">Product Link</div>
+                  <div class="detail-value" style="word-break: break-all;">
+                    ${product.adminLink ? `<a href="${product.adminLink}" target="_blank" style="color: #0284c7; text-decoration: underline;">${product.adminLink}</a>` : '—'}
+                  </div>
+                </div>
+              </div>
+                <div style="margin-top:12px">
+                  <div class="detail-row">
+                    <div class="detail-label">Available Sizes</div>
+                    <div class="detail-value">${product.sizes && product.sizes.length ? (Array.isArray(product.sizes) ? product.sizes.join(', ') : product.sizes) : '—'}</div>
+                  </div>
+
+                  <div class="detail-row">
+                    <div class="detail-label">AI Suggestions</div>
+                    <div class="detail-value">${product.suggestions && product.suggestions.length ? (Array.isArray(product.suggestions) ? product.suggestions.join(', ') : product.suggestions) : '—'}</div>
+                  </div>
+                </div>
+              <!-- Admin fields are editable from the product list. -->
+            </div>
+
+            <div id="recommendationsSection" style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #f0f0f0;">
+              <div class="detail-label" style="margin-bottom: 12px;">🎯 Similar Products (Based on Category, Tags & Colors)</div>
+              <div id="recommendationsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px;">
+                <div style="grid-column: span 1; text-align: center; color: #6b7280; padding: 20px;">Loading recommendations...</div>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn btn-danger" onclick="deleteProduct('${product.id}')">🗑️ Delete Product</button>
+              <button class="btn btn-secondary" style="margin-left:8px;" onclick="editFullProduct()">✏️ Edit Product</button>
+              <div style="margin-left:auto; display:flex; gap:8px; align-items:center">
+                <label style="font-size:13px; display:flex; gap:6px; align-items:center"><input type="checkbox" id="premiumToggle" ${product.isPremium ? 'checked' : ''} /> Premium</label>
+                <label style="font-size:13px; display:flex; gap:6px; align-items:center"><input type="checkbox" id="latestToggle" ${product.isLatest ? 'checked' : ''} /> Latest</label>
+                <button class="btn btn-primary" onclick="saveFlags()">Save</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.getElementById('container').innerHTML = html;
+        
+        // Load and display recommendations
+        loadRecommendations();
+      }
+
+      async function loadRecommendations() {
+        if (!product || !product.id) return;
+        
+        try {
+          const res = await fetch(API_BASE + `/api/recommend?id=${product.id}&limit=5`);
+          const data = await res.json();
+          
+          if (data.success && data.recommendations && data.recommendations.length > 0) {
+            const recommendationsList = document.getElementById('recommendationsList');
+            recommendationsList.innerHTML = data.recommendations.map(prod => {
+              const colorChips = prod.colors && prod.colors.length > 0 
+                ? prod.colors.map(hex => `<div style="width: 20px; height: 20px; border-radius: 3px; background: ${hex}; border: 1px solid #ddd; display: inline-block; margin-right: 4px;" title="${hex}"></div>`).join('')
+                : '';
+              const img = prod.images && prod.images.length > 0 
+                ? (typeof prod.images[0] === 'string' ? prod.images[0] : prod.images[0]?.src || '')
+                : '';
+              
+              return `
+                <div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden; cursor: pointer; transition: all 0.2s; padding: 8px;" onclick="openProduct('${prod.id}')">
+                  ${img ? `<div style="width: 100%; height: 120px; overflow: hidden; border-radius: 4px; background: #f0f0f0;"><img src="${img}" alt="${prod.name}" style="width: 100%; height: 100%; object-fit: cover;" /></div>` : '<div style="width: 100%; height: 120px; background: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #ccc;">No Image</div>'}
+                  <div style="padding: 8px 0; font-size: 13px; font-weight: 600; color: #1f2937; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prod.name}</div>
+                  <div style="font-size: 14px; color: #dc2626; font-weight: 700;">Rs. ${Number(prod.price).toFixed(0)}</div>
+                  ${colorChips ? `<div style="padding-top: 6px;">${colorChips}</div>` : ''}
+                </div>
+              `;
+            }).join('');
+          } else {
+            const recommendationsList = document.getElementById('recommendationsList');
+            recommendationsList.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #6b7280; padding: 20px;">No similar products found</div>';
+          }
+        } catch (err) {
+          console.warn('Failed to load recommendations:', err);
+          const recommendationsList = document.getElementById('recommendationsList');
+          recommendationsList.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #6b7280; padding: 20px;">Could not load recommendations</div>';
+        }
+      }
+
+      function openProduct(id) {
+        window.location.href = `products-detail.html?id=${id}`;
+      }
+
+      function editFullProduct() {
+        // Navigate to the Add Product page in edit mode so the add form is pre-filled
+        const target = `products-add.html?editId=${product.id}`;
+        try { window.location.href = target; } catch (e) { window.open(target, '_self'); }
+      }
+
+      async function saveFullProduct(patch) {
+        try {
+          const adminSecret = window.desktopApi ? await window.desktopApi.getAdminSecret() : '';
+          const res = await fetch(API_BASE + '/api/products', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+            body: JSON.stringify({ id: product.id, ...patch })
+          });
+          if (res.ok) {
+            alert('✓ Product updated');
+            loadProduct();
+          } else {
+            alert('❌ Failed to update product');
+          }
+        } catch (err) {
+          console.error('Save full product error', err);
+          alert('❌ Error saving product');
+        }
+      }
+
+      async function deleteProduct(id) {
+        if (!confirm('Are you sure you want to delete this product?')) return;
+
+        try {
+          const adminSecret = window.desktopApi ? await window.desktopApi.getAdminSecret() : '';
+          const response = await fetch(API_BASE + `/api/products?id=${id}`, {
+            method: 'DELETE',
+            headers: {
+              'x-admin-secret': adminSecret,
+            },
+          });
+
+          if (response.ok) {
+            alert('✓ Product deleted successfully');
+            goBack();
+          } else {
+            alert('❌ Failed to delete product');
+          }
+        } catch (err) {
+          console.error('Delete error:', err);
+          alert('❌ Error: ' + err.message);
+        }
+      }
+
+      function goBack() {
+        window.desktopApi.goToProductsList();
+      }
+
+      // Load product when page loads
+      loadProduct();
+
+      async function saveFlags() {
+        const premium = document.getElementById('premiumToggle').checked;
+        const latest = document.getElementById('latestToggle').checked;
+        try {
+          const adminSecret = window.desktopApi ? await window.desktopApi.getAdminSecret() : '';
+          const res = await fetch(API_BASE + '/api/products', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+            body: JSON.stringify({ id: product.id, isPremium: premium, isLatest: latest })
+          });
+          if (res.ok) {
+            alert('Saved');
+            loadProduct();
+          } else {
+            alert('Failed to save');
+          }
+        } catch (err) {
+          console.error('Save error', err);
+          alert('Error saving flags');
+        }
+      }
+
+      function editAdminFields() {
+        const adminCode = product.adminCode || '';
+        const adminLink = product.adminLink || '';
+        
+        const newCode = prompt('Enter Admin Product Code:', adminCode);
+        if (newCode === null) return;
+        
+        const newLink = prompt('Enter Admin Product Link:', adminLink);
+        if (newLink === null) return;
+
+        saveAdminFields(newCode, newLink);
+      }
+
+      async function saveAdminFields(adminCode, adminLink) {
+        try {
+          const adminSecret = window.desktopApi ? await window.desktopApi.getAdminSecret() : '';
+          const res = await fetch(API_BASE + '/api/products', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'x-admin-secret': adminSecret },
+            body: JSON.stringify({ id: product.id, adminCode, adminLink })
+          });
+          if (res.ok) {
+            alert('✓ Admin fields saved');
+            loadProduct();
+          } else {
+            alert('❌ Failed to save admin fields');
+          }
+        } catch (err) {
+          console.error('Save error', err);
+          alert('❌ Error saving admin fields');
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <!-- htmlhint inline-style-disabled:false -->
+  <!-- webhint-disable no-inline-styles -->
+  <head>
+    <meta charset="utf-8" />
+    <title>Product Management - Desktop</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      body {
+        font-family: Inter, Arial;
+        margin: 0;
+        padding: 24px;
+        background: #f3f4f6;
+      }
+      .card {
+        max-width: 420px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-sizing: border-box;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background: #0ea5e9;
+        color: #fff;
+        border: 0;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #0284c7;
+      }
+      .err {
+        color: #b91c1c;
+        margin-bottom: 8px;
+        padding: 8px;
+        background: #fee2e2;
+        border-radius: 4px;
+      }
+      h2 {
+        margin: 0 0 8px;
+        color: #1f2937;
+      }
+      p {
+        margin: 0 0 16px;
+        color: #6b7280;
+      }
+    </style>
+    <script src="/visitor-tracking.js"></script>
+  </head>
+  <body>
+    <div class="card">
+      <h2>Product Management</h2>
+      <p>Enter your admin password to manage products.</p>
+      <!-- hint:no-inline-styles:off -->
+      <div id="err" class="err" style="display: none"></div>
+      <label>Admin Password</label>
+      <input id="pw" type="password" autocomplete="off" title="Enter admin password" />
+      <button id="btn">Login</button>
+      <!-- hint:no-inline-styles:off -->
+      <p style="margin-top: 12px; color: #6b7280; font-size: 13px">
+        Only the store owner can access this application.
+      </p>
+    </div>
+
+    <script>
+      const btn = document.getElementById('btn');
+      const pw = document.getElementById('pw');
+      const err = document.getElementById('err');
+
+      document.addEventListener('DOMContentLoaded', function() {
+        btn.addEventListener('click', function() {
+          const password = pw.value;
+          console.log('Product login attempt');
+          window.desktopApi.loginProducts(password);
+        });
+
+        window.desktopApi.onProductsLoginFailed(function() {
+          console.log('Product login failed');
+          err.innerHTML = '❌ Invalid password';
+          err.style.display = 'block';
+          setTimeout(() => err.style.display = 'none', 3000);
+        });
+
+        pw.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            btn.click();
+          }
+        });
+
+        console.log('Product login page initialized');
+      });
+    </script>
+  </body>
+</html>

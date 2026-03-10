@@ -1,0 +1,127 @@
+Desktop integration test report
+{
+  "created": "2026-02-16T09:10:12.270Z",
+  "total": 20,
+  "results": [
+    {
+      "orderId": "1771233020594-7b81031e3f1c",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233031174-bef88441791e",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233034677-42b395718dce",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233038180-ff0b01dadb89",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233041623-31c4a17bf383",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233044612-58b768586962",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233048228-0d96da46da37",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233051279-aa2c94a6ab5a",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233054565-ca78324a01e2",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233057483-a64c64ae2095",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233060854-8f104e02510a",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233064834-55fdd61dfd6e",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233067599-dc3fa82b21fa",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233071822-1b3f92f86ab4",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233076024-5a3e2254fcfe",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233083697-b9b8ec4e1675",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233087621-e7235d1a6e05",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233090921-7314fc9a28f4",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233094056-c8dbf3710eac",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    },
+    {
+      "orderId": "1771233097163-8dcde97c177b",
+      "paymentVerified": true,
+      "shipped": true,
+      "delivered": true
+    }
+  ]
+}

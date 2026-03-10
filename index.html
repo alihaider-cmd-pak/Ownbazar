@@ -1,0 +1,1438 @@
+<!doctype html>
+<!-- htmlhint inline-style-disabled:false -->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Orders - Desktop</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <!-- Desktop app: Inline styles are intentional for local HTML rendering -->
+    <style>
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-20px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes scaleIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      @keyframes slideDown {
+        from { opacity: 0; max-height: 0; }
+        to { opacity: 1; max-height: 500px; }
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+      body {
+        font-family: Inter, Arial;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        margin: 0;
+        padding: 18px;
+        min-height: 100vh;
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        animation: fadeIn 0.5s ease-out;
+      }
+      h1 {
+        margin: 0 0 12px;
+        color: #fff;
+        font-size: 28px;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .card {
+        background: #fff;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.6s ease-out;
+        transition: box-shadow 0.3s ease;
+      }
+      .card:hover {
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+        text-align: left;
+        animation: slideIn 0.5s ease-out;
+      }
+      th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-weight: 600;
+        color: #fff;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+      tbody tr {
+        transition: all 0.3s ease;
+      }
+      tbody tr:hover {
+        background: #f8f9ff;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+      }
+      .btn {
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        cursor: pointer;
+        font-weight: 600;
+        margin-right: 6px;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      }
+      .btn:active {
+        transform: translateY(0);
+      }
+      .btn-shipped {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+      }
+      .btn-shipped:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+      }
+      .btn-delivered {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      }
+      .btn-delivered:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+      }
+      .btn-secondary {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+      }
+      .btn-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+      }
+      .btn-delete {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+      }
+      .btn-delete:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+      }
+      .btn-cancel-order {
+        background: #dc2626 !important;
+      }
+      .muted {
+        color: #6b7280;
+      }
+      .detail-view {
+        padding: 20px 0;
+        animation: fadeIn 0.5s ease-out;
+      }
+      .detail-row {
+        margin-bottom: 16px;
+        animation: slideIn 0.5s ease-out;
+      }
+      .detail-label {
+        font-weight: 600;
+        color: #667eea;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+      }
+      .detail-value {
+        color: #1f2937;
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 8px 14px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 12px;
+        margin-bottom: 12px;
+        animation: scaleIn 0.4s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .status-pending {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+        border-left: 4px solid #f59e0b;
+      }
+      .status-shipped {
+        background: linear-gradient(135deg, #fef08a 0%, #fcd34d 100%);
+        color: #854d0e;
+        border-left: 4px solid #f59e0b;
+      }
+      .status-delivered {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        color: #065f46;
+        border-left: 4px solid #10b981;
+      }
+      .status-cancelled {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+        border-left: 4px solid #ef4444;
+      }
+      .action-buttons {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 2px solid #e5e7eb;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        animation: slideIn 0.5s ease-out 0.2s backwards;
+      }
+      .success-msg {
+        background: linear-gradient(135deg, #dcfce7 0%, #c7f0d8 100%);
+        color: #166534;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        animation: slideDown 0.4s ease;
+        border-left: 4px solid #10b981;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+      }
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+      }
+      .modal-overlay.show {
+        display: flex;
+      }
+      .modal-content {
+        background: #fff;
+        padding: 24px;
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: scaleIn 0.3s ease;
+      }
+      .modal-content h2 {
+        margin: 0 0 16px;
+        color: #1f2937;
+        font-size: 18px;
+      }
+      .modal-content textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 14px;
+        min-height: 100px;
+        box-sizing: border-box;
+        margin-bottom: 16px;
+        transition: border-color 0.3s ease;
+      }
+      .modal-content textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+      .modal-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+      .proof-modal-content {
+        background: #fff;
+        padding: 24px;
+        border-radius: 8px;
+        max-width: 90vw;
+        max-height: 90vh;
+        width: 100%;
+        height: auto;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .proof-modal-content img {
+        max-width: 100%;
+        max-height: 75vh;
+        border-radius: 6px;
+        margin-bottom: 16px;
+      }
+      .proof-modal-content h2 {
+        margin: 0 0 16px;
+        color: #1f2937;
+        align-self: flex-start;
+        width: 100%;
+      }
+      .proof-modal-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        width: 100%;
+      }
+      /* App size utility classes */
+      .app-size-small .wrap { max-width: 760px; transform: none; }
+      .app-size-medium .wrap { max-width: 1100px; }
+      .app-size-large .wrap { max-width: 1400px; }
+      .settings-btn { background: transparent; color: #fff; border: 0; cursor: pointer; font-size: 18px; padding: 8px; border-radius: 8px; }
+      .analytics-iframe {
+        width: 100%;
+        height: 420px;
+        border: 0;
+        margin-top: 12px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      }
+      .live-card { background:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:flex-end; }
+      .live-count { font-weight:700; font-size:20px; color:#0f172a; }
+      .muted-text { color: #6b7280; margin-bottom: 16px; }
+      .flex-space-between { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+      .flex-gap { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+      .flex-gap-12 { display: flex; gap: 12px; align-items: center; }
+      .stat-select { padding: 6px; border-radius: 6px; border: 1px solid #e5e7eb; background: #fff; }
+      .cancelled-alert { padding: 16px; border-left: 4px solid #dc2626; background: #fee2e2; border-radius: 6px; margin-bottom: 16px; }
+      .cancelled-alert h3 { margin: 0 0 10px; color: #7f1d1d; font-weight: 700; }
+      .cancelled-alert p { margin: 0 0 10px; color: #b91c1c; font-size: 14px; }
+      .cancelled-alert-box { background: #fff; padding: 12px; border-radius: 6px; border: 1px solid #fecaca; font-size: 14px; }
+      .warning-box { background: #fee2e2; padding: 12px; border-left: 4px solid #dc2626; border-radius: 6px; margin-bottom: 16px; }
+      .warning-box strong { color: #991b1b; }
+      .warning-box p { margin: 8px 0 0; font-size: 13px; color: #991b1b; }
+      .proof-section { margin-top: 20px; }
+      .payment-status-pending { margin-top: 6px; font-size: 13px; color: #92400e; }
+      .payment-status-completed { margin-top: 6px; font-size: 13px; color: #065f46; }
+      .shipping-info { margin: 8px 0; }
+      .grid-2-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .items-detail { display: flex; justify-content: space-between; padding: 10px 0; border-top: 1px solid #f3f4f6; }
+      .item-name { margin: 0; }
+      .item-qty { margin-top: 0; }
+      .item-code { font-size: 12px; font-weight: 600; color: #6366f1; margin-top: 4px; }
+      .proof-container { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+      .proof-thumbnail-item { width: 120px; cursor: pointer; }
+      .proof-thumbnail-img { width: 120px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid #e5e7eb; }
+      .proof-thumbnail-label { font-size: 11px; color: #6b7280; margin-top: 4px; text-align: center; }
+      .proof-info { margin-bottom: 6px; }
+      .proof-verified { color: #065f46; font-weight: 700; }
+      .margin-right-0 { margin-right: 0; }
+      .margin-bottom-12 { margin-bottom: 12px; }
+      .margin-top-12 { margin-top: 12px; }
+      .margin-top-20 { margin-top: 20px; }
+      .margin-bottom-16 { margin-bottom: 16px; }
+      .padding-20 { padding: 20px; }
+      .text-center { text-align: center; }
+      .margin-bottom-12-px { margin-bottom: 12px; }
+      .stat-card { background: #fff; padding: 8px 12px; border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+      .stat-label { font-size: 12px; color: #6b7280; }
+      .stat-value { font-weight: 700; font-size: 18px; }
+      .flex-controls { display: flex; align-items: center; gap: 8px; }
+      .filter-buttons { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; flex-wrap: wrap; }
+      #analyticsContainer { display: none; margin-top: 12px; }
+    </style>
+    <script src="/visitor-tracking.js"></script>
+  </head>
+  <!-- htmlhint inline-style-disabled:false -->
+  <body>
+    <!-- Cancellation Modal -->
+    <div class="modal-overlay" id="cancelModal">
+      <div class="modal-content">
+        <h2>📋 Cancel Order</h2>
+        <p class="muted-text">Please provide a reason for cancelling this order:</p>
+        <textarea id="cancelReason" placeholder="Enter cancellation reason..."></textarea>
+        <div class="modal-buttons">
+          <button class="btn btn-secondary margin-right-0" onclick="closeCancelModal()" type="button">Close</button>
+          <button class="btn btn-secondary btn-cancel-order margin-right-0" onclick="submitCancelOrder()" type="button">Cancel Order</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Proof Modal -->
+    <div class="modal-overlay" id="proofModal">
+      <div class="proof-modal-content">
+        <h2>📸 Payment Proof</h2>
+        <img id="proofImage" src="" alt="Payment proof" />
+        <div class="proof-modal-buttons">
+          <button class="btn btn-secondary margin-right-0" onclick="closeProofModal()" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Order Modal -->
+    <div class="modal-overlay" id="deleteModal">
+      <div class="modal-content">
+        <h2>🗑️ Delete Order</h2>
+        <p class="muted-text">Are you sure you want to permanently delete this order? This action cannot be undone.</p>
+        <div class="warning-box">
+          <strong>⚠️ Warning:</strong>
+          <p>Deleting this order will remove it permanently from your database.</p>
+        </div>
+        <div class="modal-buttons">
+          <button class="btn btn-secondary margin-right-0" onclick="closeDeleteModal()" type="button">Cancel</button>
+          <button class="btn btn-delete margin-right-0" onclick="confirmDeleteOrder()" type="button">Delete Order</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Size Modal -->
+    <div class="modal-overlay" id="sizeModal">
+      <div class="modal-content">
+        <h2>⚙️ App Size</h2>
+        <p class="muted-text margin-bottom-12-px">Choose a comfortable app width. This setting is saved locally.</p>
+        <div class="flex-gap margin-bottom-12">
+          <button class="btn btn-secondary" onclick="applySize('small')" type="button">Small</button>
+          <button class="btn" onclick="applySize('medium')" type="button">Medium</button>
+          <button class="btn btn-delivered" onclick="applySize('large')" type="button">Large</button>
+        </div>
+        <div class="modal-buttons">
+          <button class="btn btn-secondary" onclick="closeSizeModal()" type="button">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <h1>📦 Client Orders Management</h1>
+      <div class="card" id="main">
+        <div class="flex-space-between">
+          <div class="flex-gap">
+            <div class="stat-card">
+              <div class="stat-label">Total</div>
+              <div class="stat-value" id="totalCount">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Pending</div>
+              <div class="stat-value" id="pendingCount">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Shipped</div>
+              <div class="stat-value" id="shippedCount">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Delivered</div>
+              <div class="stat-value" id="deliveredCount">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Cancelled</div>
+              <div class="stat-value" id="cancelledCount">0</div>
+            </div>
+          </div>
+
+          <div class="flex-gap-12">
+            <div class="live-card">
+              <div class="stat-label">Live Viewers</div>
+              <div class="live-count" id="liveViewerCount">--</div>
+            </div>
+            <div class="flex-controls">
+              <label class="muted" for="timeframeSelect">Timeframe:</label>
+              <select id="timeframeSelect" title="Select timeframe for orders" class="stat-select">
+                <option value="all">All time</option>
+                <option value="year">Last year</option>
+                <option value="month">Last month</option>
+                <option value="week">Last week</option>
+                <option value="yesterday">Yesterday</option>
+                <option value="today">Today</option>
+              </select>
+            </div>
+            <button class="btn btn-secondary" onclick="toggleAnalytics()">📈 Analytics</button>
+            <button class="btn" onclick="openAnalyticsWindow()">Open Analytics</button>
+            <button class="btn" id="fullscreenBtn" onclick="toggleFullScreen()">⤢ Fullscreen</button>
+            <button class="settings-btn" title="App size" onclick="openSizeModal()">⚙️</button>
+          </div>
+        </div>
+
+        <div class="filter-buttons">
+          <button class="btn" onclick="setStatusFilter('ALL')">All</button>
+          <button class="btn" onclick="setStatusFilter('PENDING')">Pending</button>
+          <button class="btn btn-shipped" onclick="setStatusFilter('SHIPPED')">Shipped</button>
+          <button class="btn btn-delivered" onclick="setStatusFilter('DELIVERED')">Delivered</button>
+          <button class="btn btn-secondary" onclick="setStatusFilter('CANCELLED')">Cancelled</button>
+        </div>
+
+        <div id="list">Loading orders...</div>
+        <!-- Embedded analytics (hidden by default) -->
+        <div id="analyticsContainer">
+          <iframe id="analyticsIframe" class="analytics-iframe" src="dashboard.html"></iframe>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      console.log("Orders page loading...");
+      
+      async function waitForApi(maxWait = 10000) {
+        const start = Date.now();
+        console.log('waitForApi: checking for window.desktopApi...');
+        while (!window.desktopApi && Date.now() - start < maxWait) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        console.log('waitForApi: finished, desktopApi present=', !!window.desktopApi);
+        return window.desktopApi;
+      }
+      
+      function getStatusBadgeClass(status) {
+        if (status === 'SHIPPED') return 'status-shipped';
+        if (status === 'DELIVERED') return 'status-delivered';
+        if (status === 'CANCELLED') return 'status-cancelled';
+        return 'status-pending';
+      }
+
+      function getStatusLabel(status) {
+        if (status === 'SHIPPED') return '📤 Order Shipped';
+        if (status === 'DELIVERED') return '✅ Order Delivered';
+        if (status === 'CANCELLED') return '❌ Cancelled';
+        return '⏳ Pending';
+      }
+
+      // State for filters
+      let currentStatusFilter = 'ALL';
+      let currentTimeframe = 'all';
+      let ordersCache = [];
+
+      function readOrdersSafe() {
+        // Return cached orders if available
+        if (ordersCache && Array.isArray(ordersCache)) return ordersCache;
+        try {
+          if (window.desktopApi && typeof window.desktopApi.readOrdersFile === 'function') {
+            ordersCache = window.desktopApi.readOrdersFile();
+            return ordersCache;
+          }
+        } catch (e) {
+          console.warn('readOrdersSafe: desktopApi.readOrdersFile failed', e);
+        }
+        return ordersCache || [];
+      }
+
+      function isWithinTimeframe(dateStr, tf) {
+        if (tf === 'all') return true;
+        
+        // Get Pakistan timezone (UTC+5)
+        const formatter = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Asia/Karachi',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        
+        // Get current date/time in Pakistan
+        const now = new Date();
+        const pktParts = formatter.format(now).split(/[\/\s:]/);
+        const pktMonth = parseInt(pktParts[0]);
+        const pktDay = parseInt(pktParts[1]);
+        const pktYear = parseInt(pktParts[2]);
+        const pktHour = parseInt(pktParts[3]);
+        const pktMinute = parseInt(pktParts[4]);
+        
+        // Get order date in Pakistan timezone
+        const orderDate = new Date(dateStr);
+        const orderParts = formatter.format(orderDate).split(/[\/\s:]/);
+        const orderMonth = parseInt(orderParts[0]);
+        const orderDay = parseInt(orderParts[1]);
+        const orderYear = parseInt(orderParts[2]);
+        
+        // Get today's date start (00:00:00 Pakistan time)
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        // Adjust for Pakistan timezone offset (UTC+5)
+        const userOffset = todayStart.getTimezoneOffset() * 60000;
+        const pktOffset = 5 * 60 * 60000;
+        todayStart.setTime(todayStart.getTime() - userOffset + pktOffset);
+        
+        // Get tomorrow's start
+        const tomorrowStart = new Date(todayStart);
+        tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+        
+        // Get yesterday's start
+        const yesterdayStart = new Date(todayStart);
+        yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+        
+        // Get past 7 days start
+        const weekStart = new Date(todayStart);
+        weekStart.setDate(weekStart.getDate() - 7);
+        
+        // Get past 31 days start
+        const monthStart = new Date(todayStart);
+        monthStart.setDate(monthStart.getDate() - 31);
+        
+        // Get past 365 days start
+        const yearStart = new Date(todayStart);
+        yearStart.setDate(yearStart.getDate() - 365);
+        
+        const orderTime = orderDate.getTime();
+        
+        if (tf === 'today') return orderTime >= todayStart.getTime() && orderTime < tomorrowStart.getTime();
+        if (tf === 'yesterday') return orderTime >= yesterdayStart.getTime() && orderTime < todayStart.getTime();
+        if (tf === 'week') return orderTime >= weekStart.getTime() && orderTime < tomorrowStart.getTime();
+        if (tf === 'month') return orderTime >= monthStart.getTime() && orderTime < tomorrowStart.getTime();
+        if (tf === 'year') return orderTime >= yearStart.getTime() && orderTime < tomorrowStart.getTime();
+        return true;
+      }
+
+      function applyFilters(allOrders) {
+        const tf = currentTimeframe;
+        const filtered = allOrders.filter(o => isWithinTimeframe(o.createdAt, tf));
+        if (currentStatusFilter === 'ALL') return filtered;
+        return filtered.filter(o => o.status === currentStatusFilter);
+      }
+
+      function updateCounts(allOrders) {
+        const total = allOrders.length;
+        const pending = allOrders.filter(o => o.status === 'PENDING').length;
+        const shipped = allOrders.filter(o => o.status === 'SHIPPED').length;
+        const delivered = allOrders.filter(o => o.status === 'DELIVERED').length;
+        const cancelled = allOrders.filter(o => o.status === 'CANCELLED').length;
+        document.getElementById('totalCount').innerText = total;
+        document.getElementById('pendingCount').innerText = pending;
+        document.getElementById('shippedCount').innerText = shipped;
+        document.getElementById('deliveredCount').innerText = delivered;
+        document.getElementById('cancelledCount').innerText = cancelled;
+      }
+
+      function setStatusFilter(status) {
+        currentStatusFilter = status;
+        const orders = readOrdersSafe();
+        const filtered = applyFilters(orders);
+        render(filtered);
+      }
+
+      // Attach timeframe change listener directly (DOM is already loaded at script run time)
+      const sel = document.getElementById('timeframeSelect');
+      if (sel) {
+        sel.addEventListener('change', (e) => {
+          currentTimeframe = e.target.value;
+          const orders = readOrdersSafe();
+          const filtered = applyFilters(orders);
+          render(filtered);
+        });
+      }
+
+      function render(orders) {
+        if (!orders || orders.length === 0) {
+          document.getElementById('list').innerHTML = '<div class="muted" style="padding: 20px; text-align: center;">No orders yet</div>';
+          return;
+        }
+        const rows = orders
+          .map(
+            (o) => `
+          <tr onclick="view('${o.id}')" style="cursor: pointer;">
+            <td>
+              <strong>${o.orderNumber}</strong>
+              <div class="muted">${new Date(o.createdAt).toLocaleString()}</div>
+              ${o.paymentStatus === 'COMPLETED' ? `<div style="margin-top:6px; font-size:13px; color:#065f46;">Payment: ✅ ${o.paymentMethod || ''}</div>` : (o.paymentStatus === 'PENDING' && o.paymentProof ? `<div style="margin-top:6px; font-size:13px; color:#92400e;">Payment: ⚠️ Pending</div>` : ``)}
+            </td>
+            <td>Rs. ${Number(o.total).toFixed(2)}</td>
+            <td>
+              <span class="status-badge ${getStatusBadgeClass(o.status)}">
+                ${getStatusLabel(o.status)}
+              </span>
+            </td>
+            <td style="text-align: center;">
+              <button class="btn" onclick="event.stopPropagation(); view('${o.id}')">View Details</button>
+            </td>
+          </tr>
+        `
+          )
+          .join('');
+        document.getElementById('list').innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Order Number</th>
+                <th>Total Amount</th>
+                <th>Status</th>
+                <th style="text-align: center;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+        `;
+        // Also update counts for the full dataset (not just filtered) so admins see totals
+        try {
+          const all = readOrdersSafe();
+          updateCounts(all);
+        } catch (err) {
+          console.warn('Failed to update counts', err);
+        }
+      }
+
+      function view(id) {
+        const orders = readOrdersSafe();
+        const o = orders.find((x) => x.id === id);
+        if (!o) return alert('Order not found');
+
+        const itemsHtml = o.items
+          .map(
+            (it) => `
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid #f3f4f6">
+            <div>
+              <strong>${it.name}</strong>
+              <div class="muted">Qty: ${it.quantity}</div>
+              ${it.adminCode ? `<div style="font-size:12px; font-weight:600; color:#6366f1; margin-top:4px;">🔐 Code: ${it.adminCode}</div>` : ''}
+            </div>
+            <div>Rs. ${(it.price * it.quantity).toFixed(2)}</div>
+          </div>
+        `
+          )
+          .join('');
+
+        // Cancelled alert box
+        const cancelledAlert = o.status === 'CANCELLED' ? `
+          <div style="padding: 16px; border-left: 4px solid #dc2626; background: #fee2e2; border-radius: 6px; margin-bottom: 16px;">
+            <h3 style="margin: 0 0 10px; color: #7f1d1d; font-weight: 700;">⛔ Order Cancelled</h3>
+            <p style="margin: 0 0 10px; color: #b91c1c; font-size: 14px;">
+              ${o.cancelledBy === 'client' ? 'This order was cancelled by the customer.' : 'This order was cancelled by the owner.'}
+            </p>
+            <div style="background: #fff; padding: 12px; border-radius: 6px; border: 1px solid #fecaca; font-size: 14px;">
+              <div style="margin-bottom: 6px;"><strong>Reason:</strong> ${o.cancellationReason || 'No reason provided'}</div>
+              <div><strong>Cancelled At:</strong> ${o.cancelledAt ? new Date(o.cancelledAt).toLocaleString() : 'N/A'}</div>
+              <div><strong>Cancelled By:</strong> ${o.cancelledBy === 'client' ? 'Customer' : 'Owner/Admin'}</div>
+            </div>
+          </div>
+        ` : '';
+
+        const html = `
+          ${cancelledAlert}
+          <div id="proofSection" style="margin-top:20px;">
+            ${o.paymentProof ? `<h3 class="detail-label">Payment Proof</h3>` : ''}
+            ${o.paymentProof ? (Array.isArray(o.paymentProof) ? o.paymentProof.map(p => `<img src="${p}" style="max-width:100%; margin-bottom:8px;" />`).join('') : `<img src="${o.paymentProof}" style="max-width:100%; margin-bottom:8px;" />`) : ''}
+            ${o.paymentStatus === 'PENDING' && o.paymentProof ? `<div style="margin-top:12px; display:flex; gap:8px;"><button onclick="approvePayment('${o.id}')" class="btn">✅ Accept</button><button onclick="rejectPayment('${o.id}')" class="btn btn-danger">❌ Reject</button></div>` : ''}
+          </div>
+
+          <div class="detail-view">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+              <div>
+                <h2 style="margin: 0 0 6px;">${o.orderNumber}</h2>
+                <div class="muted">${new Date(o.createdAt).toLocaleString()}</div>
+              </div>
+              <span class="status-badge ${getStatusBadgeClass(o.status)}">
+                ${getStatusLabel(o.status)}
+              </span>
+            </div>
+
+            ${cancelledAlert}
+
+            <div class="detail-row">
+              <div class="detail-label">📍 Shipping Address</div>
+              <div class="detail-value" style="margin: 8px 0;">
+                <strong>${o.shippingAddress.fullName}</strong><br>
+                ${o.shippingAddress.address}, ${o.shippingAddress.city}<br>
+                ${o.shippingAddress.state} ${o.shippingAddress.zipCode}<br>
+                ${o.shippingAddress.country}<br>
+                <span class="muted">Phone: ${o.shippingAddress.phone}</span>
+              </div>
+            </div>
+
+            <div class="detail-row">
+              <div class="detail-label">📦 Items</div>
+              ${itemsHtml}
+            </div>
+
+            <div class="detail-row">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <div>
+                  <div class="detail-label">Subtotal</div>
+                  <div class="detail-value">Rs. ${Number(o.subtotal).toFixed(2)}</div>
+                </div>
+                <div>
+                  <div class="detail-label">Tax</div>
+                  <div class="detail-value">Rs. ${Number(o.tax).toFixed(2)}</div>
+                </div>
+                <div>
+                  <div class="detail-label">Shipping</div>
+                  <div class="detail-value">Rs. ${Number(o.shipping || 0).toFixed(2)}</div>
+                </div>
+                <div>
+                  <div class="detail-label">Total</div>
+                  <div class="detail-value"><strong style="font-size: 16px;">Rs. ${Number(o.total).toFixed(2)}</strong></div>
+                </div>
+                <div>
+                  <div class="detail-label">Payment Method</div>
+                  <div class="detail-value">${o.paymentMethod || 'N/A'} ${o.paymentStatus === 'COMPLETED' ? '• ✅' : ''}${o.paymentVerified ? ' • Verified' : ''}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="detail-row">
+              <div class="detail-label">Payment Proof</div>
+              <div class="detail-value">
+                ${o.paymentProof ? `
+                  <div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+                    ${Array.isArray(o.paymentProof) 
+                      ? o.paymentProof.map((proof, idx) => `
+                        <div style="width:120px;cursor:pointer;" class="proof-thumbnail" data-proof="${proof.replace(/"/g, '&quot;')}">
+                          <img src="${proof}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;" alt="payment proof ${idx + 1}"/>
+                          <div style="font-size:11px;color:#6b7280;margin-top:4px;text-align:center">Proof ${idx + 1}</div>
+                        </div>
+                      `).join('')
+                      : `
+                        <div style="width:120px;cursor:pointer;" class="proof-thumbnail" data-proof="${o.paymentProof.replace(/"/g, '&quot;')}">
+                          <img src="${o.paymentProof}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb;" alt="payment proof"/>
+                        </div>
+                      `
+                    }
+                    <div>
+                      <div style="margin-bottom:6px;">Uploaded: ${o.paymentUploadedAt ? new Date(o.paymentUploadedAt).toLocaleString() : (o.cancelledAt ? new Date(o.cancelledAt).toLocaleString() : 'N/A')}</div>
+                      ${o.paymentVerified ? '<div style="color:#065f46;font-weight:700">✅ Payment Verified</div>' : `<button class="btn btn-secondary" onclick="verifyPayment('${id}')">Verify Payment</button>`}
+                    </div>
+                  </div>
+                ` : `<div class="muted">No payment proof uploaded.</div>`}
+              </div>
+            </div>
+
+            <div id="successMsg"></div>
+
+            <div class="action-buttons">
+              ${o.status === 'CANCELLED' ? '' : `
+                <button class="btn btn-shipped" onclick="updateStatus('${id}', 'SHIPPED')">📤 Order Shipped</button>
+                <button class="btn btn-delivered" onclick="updateStatus('${id}', 'DELIVERED')">✅ Order Delivered</button>
+                <button class="btn btn-secondary" onclick="openCancelModal('${id}')">❌ Cancel Order</button>
+              `}
+              <button class="btn btn-delete" onclick="openDeleteModal('${id}')">🗑️ Delete Order</button>
+              <button class="btn btn-secondary" onclick="closeDetail()">Close</button>
+            </div>
+          </div>
+        `;
+        document.getElementById('list').innerHTML = html;
+      }
+
+      function updateStatus(orderId, newStatus) {
+        console.log(`updateStatus called: orderId=${orderId}, newStatus=${newStatus}`);
+        
+        const orders = readOrdersSafe();
+        console.log(`Total orders in file: ${orders.length}`);
+        console.log(`Looking for order with id: ${orderId}`);
+        const orderIndex = orders.findIndex((x) => {
+          console.log(`Comparing ${x.id} === ${orderId}: ${x.id === orderId}`);
+          return x.id === orderId;
+        });
+
+        if (orderIndex === -1) {
+          console.error(`Order not found in list. Available IDs: ${orders.map(o => o.id).join(', ')}`);
+          alert('❌ Order not found. Cannot update status.');
+          return;
+        }
+        
+        console.log(`Found order at index ${orderIndex}`);
+        
+        // Check if order is cancelled - prevent any changes
+        const order = orders[orderIndex];
+        if (order.status === 'CANCELLED') {
+          alert('❌ This order has been cancelled and cannot be modified.');
+          return;
+        }
+
+        // Prevent shipping non-COD orders before payment is verified
+        if (newStatus === 'SHIPPED' && order.paymentMethod && order.paymentMethod !== 'cod') {
+          const paid = order.paymentStatus === 'COMPLETED' || order.paymentVerified === true;
+          if (!paid) {
+            alert('❌ Cannot mark as shipped before payment is verified. Please verify payment first.');
+            return;
+          }
+        }
+
+        
+        orders[orderIndex].status = newStatus;
+
+        // Save back to orders.json using IPC
+        (async () => {
+          try {
+            const result = await window.desktopApi.saveOrdersFile(orders);
+            console.log(`saveOrdersFile result:`, result);
+
+            // Notify the Next.js API so it updates its in-memory store and any listeners
+            try {
+              console.log(`Calling API: http://localhost:3000/api/orders?id=${orderId} with status=${newStatus}`);
+              // Try explicit localhost URL first (works when dev server running). If it fails, fallback is fine.
+              const apiUrl = `http://localhost:3000/api/orders?id=${orderId}`;
+              let apiResponse = null;
+              try {
+                apiResponse = await fetch(apiUrl, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ status: newStatus })
+                });
+                console.log(`API response status: ${apiResponse.status}`);
+                const apiData = await apiResponse.json().catch(() => null);
+                console.log(`API response data:`, apiData);
+                if (!apiResponse.ok) throw new Error('Bad response');
+              } catch (errPrimary) {
+                console.warn('Primary API notify failed, trying fallback relative path', errPrimary);
+                try {
+                  const relResp = await fetch(`/api/orders?id=${orderId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                  });
+                  console.log('Fallback API response status:', relResp.status);
+                  if (!relResp.ok) throw new Error('Fallback bad response');
+                } catch (errFallback) {
+                  console.warn('Fallback notify failed, will retry once after delay', errFallback);
+                  // Retry primary once after short delay
+                  try {
+                    await new Promise(r => setTimeout(r, 500));
+                    const retry = await fetch(apiUrl, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ status: newStatus })
+                    });
+                    console.log('Retry API response status:', retry.status);
+                  } catch (retryErr) {
+                    console.warn('Retry notify failed:', retryErr);
+                  }
+                }
+              }
+            } catch (e) {
+              console.warn('Failed to notify API of status change (localhost):', e);
+              try {
+                // Fallback to relative path (in case app is served)
+                const relResp = await fetch(`/api/orders?id=${orderId}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ status: newStatus })
+                });
+                console.log('Fallback API response status:', relResp.status);
+              } catch (e2) {
+                console.warn('Failed to notify API via fallback path:', e2);
+              }
+            }
+
+            if (result.success) {
+              // Show success message
+              const statusLabel = newStatus === 'SHIPPED' 
+                ? '📤 Order Shipped' 
+                : '✅ Order Delivered';
+              
+              const msgEl = document.getElementById('successMsg');
+              msgEl.innerHTML = `<div class="success-msg">✓ Status Updated: ${statusLabel}</div>`;
+              
+              // Refresh data and list after 1 second
+                setTimeout(async () => {
+                // Re-read file to verify persistence
+                let freshOrders = readOrdersSafe();
+                try {
+                  if (window.desktopApi && typeof window.desktopApi.readOrdersFile === 'function') {
+                    freshOrders = window.desktopApi.readOrdersFile();
+                    ordersCache = freshOrders;
+                  }
+                } catch (e) {
+                  console.warn('Failed to re-read orders from desktopApi:', e);
+                }
+                const updatedOrder = freshOrders.find(x => x.id === orderId);
+                if (!updatedOrder) {
+                  console.error('After save, order not found in file.');
+                  alert('❌ Order saved but not found in file.');
+                } else if (updatedOrder.status !== newStatus) {
+                  console.error(`Status did not persist to file (expected ${newStatus}, found ${updatedOrder.status}). Retrying write.`);
+                  // Attempt to write again
+                  try {
+                    const idx2 = freshOrders.findIndex(x => x.id === orderId);
+                    if (idx2 !== -1) {
+                      freshOrders[idx2].status = newStatus;
+                      const retry = await window.desktopApi.saveOrdersFile(freshOrders);
+                      if (!retry.success) {
+                        alert('❌ Failed to persist status change on retry: ' + (retry.error || 'unknown'));
+                      }
+                    }
+                  } catch (rwErr) {
+                    console.error('Retry write failed:', rwErr);
+                    alert('❌ Failed to persist status change: ' + (rwErr.message || rwErr));
+                  }
+                }
+
+                ordersCache = freshOrders;
+                updateCounts(freshOrders);
+                const filtered = applyFilters(freshOrders);
+                render(filtered);
+                // Then show detail for current order
+                view(orderId);
+              }, 1000);
+            } else {
+              console.error('saveOrdersFile returned false:', result);
+              alert('❌ Error: ' + (result.error || 'Failed to update order'));
+            }
+          } catch (err) {
+            console.error('Error saving orders:', err);
+            alert('❌ Error: ' + err.message);
+          }
+        })();
+      }
+
+      function closeDetail() {
+        const orders = readOrdersSafe();
+        const filtered = applyFilters(orders);
+        render(filtered);
+      }
+
+      // Modal functions for owner cancellation
+      let cancellingOrderId = null;
+
+      async function verifyPayment(orderId) {
+        try {
+          const orders = readOrdersSafe();
+          const idx = orders.findIndex(x => x.id === orderId);
+          if (idx === -1) return alert('Order not found');
+
+          orders[idx].paymentVerified = true;
+          orders[idx].paymentStatus = 'COMPLETED';
+
+          const result = await window.desktopApi.saveOrdersFile(orders);
+          ordersCache = orders;
+
+          // Notify API
+          try {
+            await fetch(`/api/orders?id=${orderId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentVerified: true, paymentStatus: 'COMPLETED' })
+            });
+          } catch (e) {
+            console.warn('Failed to notify API of payment verification:', e);
+          }
+
+          if (result.success) {
+            alert('✓ Payment marked as verified');
+            view(orderId);
+          } else {
+            alert('❌ Error: ' + (result.error || 'Failed to update payment'));
+          }
+        } catch (err) {
+          console.error('Error verifying payment:', err);
+          alert('❌ Error: ' + (err.message || err));
+        }
+      }
+
+      // desktop action to accept proof (same as verify)
+      async function approvePayment(orderId) {
+        // simply call verifyPayment (reuse logic)
+        await verifyPayment(orderId);
+      }
+
+      async function rejectPayment(orderId) {
+        try {
+          const orders = readOrdersSafe();
+          const idx = orders.findIndex(x => x.id === orderId);
+          if (idx === -1) return alert('Order not found');
+
+          orders[idx].paymentStatus = 'REJECTED';
+          orders[idx].paymentVerified = false;
+
+          const result = await window.desktopApi.saveOrdersFile(orders);
+          ordersCache = orders;
+
+          // notify API
+          try {
+            await fetch(`/api/orders?id=${orderId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ paymentStatus: 'REJECTED', paymentVerified: false })
+            });
+          } catch (e) {
+            console.warn('Failed to notify API of payment rejection:', e);
+          }
+
+          if (result.success) {
+            alert('⚠️ Payment marked as rejected');
+            view(orderId);
+          } else {
+            alert('❌ Error: ' + (result.error || 'Failed to update payment status'));
+          }
+        } catch (err) {
+          console.error('Error rejecting payment:', err);
+          alert('❌ Error: ' + (err.message || err));
+        }
+      }
+
+      function openCancelModal(orderId) {
+        cancellingOrderId = orderId;
+        document.getElementById('cancelReason').value = '';
+        const modal = document.getElementById('cancelModal');
+        modal.style.display = 'flex';
+      }
+
+      function closeCancelModal() {
+        const modal = document.getElementById('cancelModal');
+        modal.style.display = 'none';
+        cancellingOrderId = null;
+      }
+
+      // Delete Order modal functions
+      let deletingOrderId = null;
+
+      function openDeleteModal(orderId) {
+        deletingOrderId = orderId;
+        const modal = document.getElementById('deleteModal');
+        modal.style.display = 'flex';
+      }
+
+      function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.style.display = 'none';
+        deletingOrderId = null;
+      }
+
+      function confirmDeleteOrder() {
+        if (!deletingOrderId) return;
+        
+        const orders = readOrdersSafe();
+        const orderIndex = orders.findIndex((x) => x.id === deletingOrderId);
+
+        if (orderIndex === -1) {
+          alert('Order not found');
+          closeDeleteModal();
+          return;
+        }
+
+        const orderNumber = orders[orderIndex].orderNumber;
+        
+        // Remove the order from the array
+        orders.splice(orderIndex, 1);
+
+        // Save back to orders.json using IPC
+        (async () => {
+          try {
+            const result = await window.desktopApi.saveOrdersFile(orders);
+            ordersCache = orders;
+
+            // Notify the Next.js API
+            try {
+              await fetch(`/api/orders?id=${deletingOrderId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+              });
+            } catch (e) {
+              console.warn('Failed to notify API of order deletion:', e);
+            }
+
+            if (result.success) {
+              alert(`✓ Order ${orderNumber} has been deleted successfully`);
+              closeDeleteModal();
+              // Refresh the list view
+              const all = readOrdersSafe();
+              updateCounts(all);
+              const filtered = applyFilters(all);
+              render(filtered);
+            } else {
+              console.error('saveOrdersFile returned false:', result);
+              alert('❌ Error: ' + (result.error || 'Failed to delete order'));
+            }
+          } catch (err) {
+            console.error('Error deleting order:', err);
+            alert('❌ Error: ' + err.message);
+          }
+        })();
+      }
+
+      // 
+      // Proof modal functions
+      function openProofModal(proofSource) {
+        const modal = document.getElementById('proofModal');
+        const proofImage = document.getElementById('proofImage');
+        proofImage.src = proofSource;
+        modal.style.display = 'flex';
+      }
+
+      function closeProofModal() {
+        const modal = document.getElementById('proofModal');
+        modal.style.display = 'none';
+      }
+
+      // Add event listeners for proof thumbnails
+      document.addEventListener('click', (event) => {
+        const thumbnail = event.target.closest('.proof-thumbnail');
+        if (thumbnail) {
+          const proof = thumbnail.getAttribute('data-proof');
+          if (proof) {
+            openProofModal(proof);
+          }
+        }
+      });
+
+      function submitCancelOrder() {
+        if (!cancellingOrderId) return;
+        
+        const reason = document.getElementById('cancelReason').value.trim();
+        if (!reason) {
+          alert('Please provide a cancellation reason');
+          return;
+        }
+
+        const orders = readOrdersSafe();
+        const orderIndex = orders.findIndex((x) => x.id === cancellingOrderId);
+
+        if (orderIndex === -1) {
+          alert('Order not found');
+          closeCancelModal();
+          return;
+        }
+
+        const order = orders[orderIndex];
+        
+        // Cancel the order by owner
+        orders[orderIndex].status = 'CANCELLED';
+        orders[orderIndex].cancelledBy = 'owner';
+        orders[orderIndex].cancellationReason = reason;
+        orders[orderIndex].cancelledAt = new Date().toISOString();
+
+        // Save back to orders.json using IPC
+        (async () => {
+          try {
+            const result = window.desktopApi.saveOrdersFile(orders);
+            if (result && typeof result.then === 'function') {
+              await result;
+            }
+            ordersCache = orders;
+
+            // Notify the Next.js API
+            try {
+              await fetch(`/api/orders?id=${cancellingOrderId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                  status: 'CANCELLED',
+                  cancelledBy: 'owner',
+                  cancellationReason: reason
+                })
+              });
+            } catch (e) {
+              console.warn('Failed to notify API of cancellation:', e);
+            }
+
+            if (result.success) {
+              closeCancelModal();
+              alert('✓ Order cancelled successfully!');
+              view(cancellingOrderId);
+            } else {
+              alert('❌ Error: ' + (result.error || 'Failed to cancel order'));
+            }
+          } catch (err) {
+            console.error('Error cancelling order:', err);
+            alert('❌ Error: ' + err.message);
+          }
+        })();
+      }
+
+      // Close modal when clicking outside
+      window.addEventListener('click', (event) => {
+        const cancelModal = document.getElementById('cancelModal');
+        if (event.target === cancelModal) {
+          closeCancelModal();
+        }
+        const deleteModal = document.getElementById('deleteModal');
+        if (event.target === deleteModal) {
+          closeDeleteModal();
+        }
+        const proofModal = document.getElementById('proofModal');
+        if (event.target === proofModal) {
+          closeProofModal();
+        }
+      });
+
+      // Initialize when API is ready
+      (async function () {
+        try {
+          console.log("Waiting for desktopApi...");
+          const api = await waitForApi();
+
+          let orders = null;
+
+          if (api) {
+            try {
+              console.log('Using desktopApi.readOrdersFile() to load orders');
+              orders = api.readOrdersFile();
+            } catch (e) {
+              console.error('desktopApi.readOrdersFile() failed:', e);
+            }
+          }
+
+          // Fallback: try to fetch persisted file from local server or relative path
+          if (!orders || !Array.isArray(orders)) {
+            try {
+              console.log('Attempting HTTP fallback to http://localhost:3000/data/orders.json');
+              const r = await fetch('http://localhost:3000/data/orders.json');
+              if (r.ok) {
+                orders = await r.json();
+                console.log('Loaded orders via localhost fallback:', orders.length);
+              }
+            } catch (e) {
+              console.warn('localhost fallback failed:', e);
+            }
+          }
+
+          if (!orders || !Array.isArray(orders)) {
+            try {
+              console.log('Attempting relative fallback to ./data/orders.json');
+              const r2 = await fetch('./data/orders.json');
+              if (r2.ok) {
+                orders = await r2.json();
+                console.log('Loaded orders via relative fallback:', orders.length);
+              }
+            } catch (e2) {
+              console.warn('relative fallback failed:', e2);
+            }
+          }
+
+          if (!orders || !Array.isArray(orders)) {
+            console.error('No orders source available');
+            document.getElementById('list').innerHTML = '<div class="muted">Error: API not available or orders file not found</div>';
+            return;
+          }
+
+          ordersCache = orders;
+          updateCounts(orders);
+          const filtered = applyFilters(orders);
+          render(filtered);
+        } catch (err) {
+          console.error("Error initializing orders page:", err);
+          document.getElementById('list').innerHTML = '<div class="muted">Error: Failed to load orders</div>';
+        }
+
+      // -- Additional UI helpers: app size, analytics toggle, live viewers --
+      function applySize(size) {
+        // Map sizes to window dimensions (used when desktop API is available)
+        const sizeMap = {
+          small: { width: 820, height: 700 },
+          medium: { width: 1100, height: 800 },
+          large: { width: 1400, height: 900 }
+        };
+
+        // CSS fallback for browsers
+        document.body.classList.remove('app-size-small', 'app-size-medium', 'app-size-large');
+        if (size === 'small') document.body.classList.add('app-size-small');
+        else if (size === 'large') document.body.classList.add('app-size-large');
+        else document.body.classList.add('app-size-medium');
+
+        // Persist choice
+        try { localStorage.setItem('appSize', size); } catch (e) { }
+
+        // If running inside Electron with a desktopApi, request window resize
+        try {
+          if (window.desktopApi && typeof window.desktopApi.resizeWindow === 'function') {
+            const dims = sizeMap[size] || sizeMap.medium;
+            window.desktopApi.resizeWindow(dims.width, dims.height);
+          } else if (window.desktopApi && typeof window.desktopApi.setWindowSize === 'function') {
+            const dims = sizeMap[size] || sizeMap.medium;
+            window.desktopApi.setWindowSize({ width: dims.width, height: dims.height });
+          }
+        } catch (e) {
+          // ignore if API not available
+        }
+
+        closeSizeModal();
+      }
+
+      function applySavedSize() { try { const s = localStorage.getItem('appSize') || 'medium'; applySize(s); } catch (e) { applySize('medium'); } }
+
+      function openSizeModal() { const m = document.getElementById('sizeModal'); if (m) m.style.display = 'flex'; }
+      function closeSizeModal() { const m = document.getElementById('sizeModal'); if (m) m.style.display = 'none'; }
+
+      function toggleAnalytics() {
+        const c = document.getElementById('analyticsContainer'); if (!c) return; c.style.display = (c.style.display === 'none' || c.style.display === '') ? 'block' : 'none';
+      }
+
+      // Open analytics in a separate window. Prefer desktop API if available.
+      function openAnalyticsWindow() {
+        try {
+          if (window.desktopApi && typeof window.desktopApi.openWindow === 'function') {
+            // Let main process open a new BrowserWindow
+            window.desktopApi.openWindow('dashboard.html', { width: 1100, height: 800, title: 'Analytics' });
+            return;
+          }
+        } catch (e) { /* ignore */ }
+
+        // Fallback to window.open
+        const features = 'toolbar=0,location=0,status=0,menubar=0,resizable=1,scrollbars=1,width=1100,height=800';
+        window.open('dashboard.html', 'analytics_window', features);
+      }
+
+      // Toggle fullscreen using desktop API if available
+      let isFull = false;
+      async function toggleFullScreen() {
+        try {
+          if (window.desktopApi && typeof window.desktopApi.setFullScreen === 'function') {
+            isFull = !isFull;
+            await window.desktopApi.setFullScreen(isFull);
+            const btn = document.getElementById('fullscreenBtn');
+            if (btn) btn.innerText = isFull ? '⤡ Exit Fullscreen' : '⤢ Fullscreen';
+            return;
+          }
+        } catch (e) {
+          console.warn('toggleFullScreen error', e);
+        }
+        // Fallback: try the browser fullscreen API on the document
+        try {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+            isFull = true;
+            document.getElementById('fullscreenBtn').innerText = '⤡ Exit Fullscreen';
+          } else {
+            document.exitFullscreen();
+            isFull = false;
+            document.getElementById('fullscreenBtn').innerText = '⤢ Fullscreen';
+          }
+        } catch (e) {
+          console.warn('Browser fullscreen fallback failed', e);
+        }
+      }
+
+      // Live viewers (fetch real data from API)
+      let liveViewers = 0;
+      const __API_ROOT = (window.location && window.location.protocol === 'file:') ? 'http://localhost:3000' : '';
+      async function updateLiveViewerDisplay() {
+        const apiUrl = __API_ROOT + '/api/visitors';
+        try {
+          const response = await fetch(apiUrl);
+          if (response.ok) {
+            const data = await response.json();
+            liveViewers = data.liveViewers || 0;
+            const el = document.getElementById('liveViewerCount');
+            if (el) el.innerText = liveViewers || '--';
+          }
+        } catch (e) {
+          console.warn('[Orders] Failed to fetch live viewers:', e);
+          const el = document.getElementById('liveViewerCount');
+          if (el) el.innerText = '--';
+        }
+      }
+
+      updateLiveViewerDisplay();
+      setInterval(updateLiveViewerDisplay, 5000);
+
+      try { applySavedSize(); } catch (e) { }
+      try { updateLiveViewerDisplay(); } catch (e) { }
+
+      // Expose selected helpers to global window for inline onclick handlers
+      try {
+        window.openAnalyticsWindow = openAnalyticsWindow;
+        window.toggleAnalytics = toggleAnalytics;
+        window.openSizeModal = openSizeModal;
+        window.closeSizeModal = closeSizeModal;
+        window.applySize = applySize;
+        window.toggleFullScreen = toggleFullScreen;
+      } catch (e) { /* ignore */ }
+
+      })();
+    </script>
+  </body>
+</html>
+    
