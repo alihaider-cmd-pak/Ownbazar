@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Products - Desktop Manager</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      body {
+        font-family: Inter, Arial;
+        background: #f3f4f6;
+        margin: 0;
+        padding: 18px;
+      }
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 0 0 12px;
+        color: #1f2937;
+      }
+      .toolbar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .btn {
+        padding: 10px 16px;
+        border-radius: 6px;
+        border: 0;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .btn-primary {
+        background: #0ea5e9;
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: #0284c7;
+      }
+      .btn-danger {
+        background: #dc2626;
+        color: #fff;
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+      .btn-danger:hover {
+        background: #b91c1c;
+      }
+      .card {
+        background: #fff;
+        padding: 16px;
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      tbody tr {
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      tbody tr:hover {
+        background-color: #f0f9ff;
+      }
+      th,
+      td {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        text-align: left;
+      }
+      th {
+        background: #f9fafb;
+        font-weight: 600;
+        color: #374151;
+      }
+      .muted {
+        color: #6b7280;
+      }
+      .tag-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        margin-left: 8px;
+        color: #fff;
+      }
+      .tag-premium { background: #f59e0b; }
+      .tag-latest { background: #0284c7; }
+      #list {
+        min-height: 50px;
+      }
+      .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+      .header-buttons {
+        display: flex;
+        gap: 12px;
+      }
+      .empty-state {
+        padding: 20px;
+        text-align: center;
+      }
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+      }
+      .modal-content {
+        background: #fff;
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 20px;
+        border-radius: 6px;
+      }
+      .form-group {
+        margin-bottom: 8px;
+      }
+      .form-row {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .form-input {
+        width: 100%;
+      }
+      .modal-actions {
+        text-align: right;
+        margin-top: 12px;
+      }
+      .category-label {
+        margin-right: 8px;
+      }
+      .category-container {
+        margin-top: 6px;
+      }
+      .sku-text {
+        font-size: 12px;
+      }
+      .category-text {
+        font-size: 13px;
+      }
+      .admin-code-text {
+        color: #6b7280;
+        font-size: 13px;
+      }
+      .action-cell {
+        text-align: center;
+      }
+      .action-header {
+        text-align: center;
+      }
+    </style>
+    <script src="/visitor-tracking.js"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header-container">
+        <h1>📦 Product Management</h1>
+        <div class="header-buttons">
+          <button class="btn btn-primary" onclick="switchToOrders()">📦 Order Management</button>
+          <button class="btn btn-primary" onclick="switchToProducts()">🛍️ Products Management</button>
+          <button class="btn btn-primary" onclick="addProduct()">+ Add Product</button>
+        </div>
+      </div>
+      <div class="card">
+        <div id="list">Loading products...</div>
+      </div>
+    </div>
+
+    <script>
+        const API_BASE = location.protocol === 'file:' ? 'http://localhost:3000' : '';
+
+      async function fetchProducts() {
+        try {
+            const response = await fetch(API_BASE + '/api/products');
+          const data = await response.json();
+          return data.success ? data.products : [];
+        } catch (err) {
+          console.error('Error fetching products:', err);
+          return [];
+        }
+      }
+
+      function render(products) {
+        if (!products || products.length === 0) {
+          document.getElementById('list').innerHTML = '<div class="muted empty-state">No products yet. Click "Add Product" to get started.</div>';
+          return;
+        }
+
+        const rows = products
+          .map(
+            (p) => `
+          <tr onclick="viewProduct('${p.id}')">
+            <td><strong>${p.name}</strong>
+              ${p.isPremium ? '<span class="tag-badge tag-premium">Premium</span>' : ''}
+              ${p.isLatest ? '<span class="tag-badge tag-latest">Latest</span>' : ''}
+              <div class="muted sku-text">${p.sku}</div>
+            </td>
+            <td class="category-text">${Array.isArray(p.category) ? p.category.join(', ') : p.category}</td>
+            <td>Rs. ${Number(p.price).toFixed(2)}</td>
+            <td>${p.quantity} units</td>
+            <td class="admin-code-text">${p.adminCode || '—'}</td>
+            <td class="action-cell">
+                <button class="btn" onclick="event.stopPropagation(); openEditModal('${p.id}')">Edit</button>
+                <button class="btn btn-danger" onclick="event.stopPropagation(); deleteProduct('${p.id}')">Delete</button>
+            </td>
+          </tr>
+        `
+          )
+          .join('');
+
+        document.getElementById('list').innerHTML = `
+          <table>
+            <thead>
+              <tr>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Admin Code</th>
+                <th class="action-header">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+        `;
+        // If an editId was provided in query params, open edit modal
+        const params = new URLSearchParams(location.search);
+        const editId = params.get('editId');
+        if (editId) {
+          setTimeout(() => openEditModal(editId), 300);
+        }
+      }
+
+      async function deleteProduct(id) {
+        if (!confirm('Delete this product?')) return;
+
+        try {
+            const adminSecret = window.desktopApi ? await window.desktopApi.getAdminSecret() : '';
+            const response = await fetch(API_BASE + `/api/products?id=${id}`, {
+            method: 'DELETE',
+            headers: {
+              'x-admin-secret': adminSecret,
+            },
+          });
+
+          if (response.ok) {
+            reload();
+          } else {
+            alert('Failed to delete product');
+          }
+        } catch (err) {
+          console.error('Delete error:', err);
+        }
+      }
+
+      function addProduct() {
+        window.desktopApi.goToAddProduct();
+      }
+
+      function switchToOrders() {
+        if (window.desktopApi && window.desktopApi.switchToOrders) {
+          window.desktopApi.switchToOrders();
+        } else {
+          alert('Desktop API not available');
+        }
+      }
+
+      function switchToProducts() {
+        if (window.desktopApi && window.desktopApi.switchToProducts) {
+          window.desktopApi.switchToProducts();
+        } else {
+          alert('Desktop API not available');
+        }
+      }
+      function openEditModal(id) {
+        const product = products.find(p => p.id === id);
+        if (!product) return alert('Product not found');
+        // populate form
+        document.getElementById('editId').value = product.id;
+        document.getElementById('editName').value = product.name || '';
+        document.getElementById('editPrice').value = product.price || 0;
+        document.getElementById('editQuantity').value = product.quantity || 0;
+        document.getElementById('editSku').value = product.sku || '';
+        document.getElementById('editAdminCode').value = product.adminCode || '';
+        document.getElementById('editAdminLink').value = product.adminLink || '';
+        // categories: ensure checkboxes exist, create from products if necessary
+        const existing = document.querySelectorAll('.cat-checkbox');
+        if (existing.length === 0) {
+          const unique = new Set();
+          products.forEach(pp => {
+            const arr = Array.isArray(pp.category) ? pp.category : [pp.category].filter(Boolean);
+            arr.forEach(c => unique.add(c));
+          });
+          const container = document.getElementById('editCategories');
+          container.innerHTML = '';
+          Array.from(unique).forEach(c => {
+            const idc = 'cat_' + c.replace(/\s+/g, '_');
+            const wrapper = document.createElement('label');
+            wrapper.className = 'category-label';
+            wrapper.innerHTML = `<input type="checkbox" class="cat-checkbox" id="${idc}" value="${c}"> ${c}`;
+            container.appendChild(wrapper);
+          });
+        }
+        const cats = Array.isArray(product.category) ? product.category : [product.category].filter(Boolean);
+        document.querySelectorAll('.cat-checkbox').forEach(cb => cb.checked = cats.includes(cb.value));
+          // show modal
+          const modal = document.getElementById('editModal');
+          modal.style.display = 'block';
+          window.scrollTo(0, 0);
+        }
+  
+        function showEditModal() {
+          document.getElementById('editModal').style.display = 'block';
+      }
+
+      async function submitEditForm(e) {
+        e.preventDefault();
+        const id = document.getElementById('editId').value;
+        const name = document.getElementById('editName').value;
+        const price = Number(document.getElementById('editPrice').value);
+        const quantity = Number(document.getElementById('editQuantity').value);
+        const sku = document.getElementById('editSku').value;
+        const adminCode = document.getElementById('editAdminCode').value;
+        const adminLink = document.getElementById('editAdminLink').value;
+        const categories = Array.from(document.querySelectorAll('.cat-checkbox:checked')).map(i => i.value);
+
+        const body = { id, name, price, quantity, sku, adminCode, adminLink, category: categories };
+        const res = await fetch('/api/products', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': localStorage.getItem('adminSecret') || '' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) return alert('Failed to save');
+        document.getElementById('editModal').style.display = 'none';
+        await loadProducts();
+        render();
+      }
+
+      function closeEditModal() {
+        const modal = document.getElementById('editModal');
+        modal.style.display = 'none';
+      }
+
+      function viewProduct(id) {
+        window.desktopApi.goToProductDetail(id);
+      }
+
+      function reload() {
+        fetchProducts().then(render);
+      }
+
+      (async function() {
+        console.log('Products page loading...');
+        const products = await fetchProducts();
+        console.log('Products loaded:', products.length);
+        render(products);
+      })();
+    </script>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal-overlay">
+      <div class="modal-content">
+        <h3>Edit Product</h3>
+        <form id="editForm" onsubmit="submitEditForm(event)">
+          <input type="hidden" id="editId" />
+          <div class="form-group"><label>Name<br><input id="editName" required class="form-input"/></label></div>
+          <div class="form-row"><label>Price<br><input id="editPrice" type="number" step="0.01" class="form-input"/></label><label>Quantity<br><input id="editQuantity" type="number" class="form-input"/></label></div>
+          <div class="form-group"><label>SKU<br><input id="editSku" class="form-input"/></label></div>
+          <div class="form-group"><label>Admin Code<br><input id="editAdminCode" class="form-input"/></label></div>
+          <div class="form-group"><label>Admin Link<br><input id="editAdminLink" class="form-input"/></label></div>
+          <div class="form-group"><strong>Categories:</strong><div id="editCategories" class="category-container"></div></div>
+          <div class="modal-actions">
+            <button type="button" class="btn" onclick="closeEditModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

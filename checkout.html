@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Checkout — Local Payments</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      body{font-family:Inter,Arial;margin:20px;background:#f8fafc}
+      .card{background:#fff;padding:18px;border-radius:8px;max-width:720px;margin:0 auto;box-shadow:0 6px 18px rgba(0,0,0,0.05)}
+      label{display:block;margin:8px 0 6px;font-weight:600}
+      select,input[type=text],.muted{padding:8px;border:1px solid #e5e7eb;border-radius:6px;width:100%;box-sizing:border-box}
+      .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+      .previews{display:flex;gap:10px;margin-top:8px}
+      .previews img{width:120px;height:80px;object-fit:cover;border-radius:6px;border:1px solid #e5e7eb}
+      .btn{padding:8px 12px;border-radius:6px;border:0;background:#0ea5e9;color:#fff;cursor:pointer;font-weight:700}
+      .muted{color:#6b7280}
+      .hint{font-size:13px;color:#374151;margin-top:6px}
+    </style>
+    <script src="/visitor-tracking.js"></script>
+  </head>
+  <body>
+    <div class="card">
+      <h2>پے منٹ طریقہ منتخب کریں — Local Payment Methods</h2>
+
+      <label for="orderId">Order ID (for testing)</label>
+      <input id="orderId" placeholder="Enter order id (e.g. abc123)" />
+
+      <label for="paymentMethod">Payment Method</label>
+      <select id="paymentMethod">
+        <option value="cod">Cash on Delivery (COD)</option>
+        <option value="bank_transfer">Bank Transfer (IBAN)</option>
+        <option value="easypaisa">Easypaisa (Mobile)</option>
+        <option value="jazzcash">JazzCash (Mobile)</option>
+        <option value="upaisa">Upaisa (Mobile)</option>
+      </select>
+
+      <div id="methodInfo" class="hint" style="margin-bottom:8px;margin-top:6px">Select a payment method to see details.</div>
+
+      <label for="proofFiles">Upload Payment Proof (max 3 images)</label>
+      <input id="proofFiles" type="file" accept="image/*" multiple />
+      <div class="previews" id="previews"></div>
+      <div class="hint">You can upload up to 3 screenshots. Allowed: JPG/PNG. Max size per file depends on server.</div>
+
+      <div style="display:flex;gap:8px;margin-top:14px;justify-content:flex-end;">
+        <button class="btn" id="submitBtn">Submit Payment Proof</button>
+      </div>
+
+      <div id="status" style="margin-top:12px"></div>
+    </div>
+
+    <script>
+      const paymentMethodEl = document.getElementById('paymentMethod');
+      const methodInfo = document.getElementById('methodInfo');
+      const proofFiles = document.getElementById('proofFiles');
+      const previews = document.getElementById('previews');
+      const submitBtn = document.getElementById('submitBtn');
+      const statusEl = document.getElementById('status');
+
+      const METHOD_DETAILS = {
+        bank_transfer: 'Bank Transfer — IBAN: PK17ASCM0007536780002408',
+        easypaisa: 'Easypaisa — Send to: 03459708287',
+        jazzcash: 'JazzCash — Send to: 03230774735',
+        upaisa: 'Upaisa — Send to: 03123456789',
+        cod: 'Cash on Delivery — No online payment required'
+      };
+
+      function updateMethodInfo() {
+        const v = paymentMethodEl.value;
+        methodInfo.innerText = METHOD_DETAILS[v] || '';
+      }
+
+      paymentMethodEl.addEventListener('change', updateMethodInfo);
+      updateMethodInfo();
+
+      let selectedFiles = [];
+
+      function renderPreviews() {
+        previews.innerHTML = '';
+        selectedFiles.forEach((f, idx) => {
+          const url = URL.createObjectURL(f);
+          const div = document.createElement('div');
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = 'proof';
+          const btn = document.createElement('button');
+          btn.textContent = 'Remove';
+          btn.style.display = 'block';
+          btn.style.marginTop = '6px';
+          btn.onclick = (e) => { e.preventDefault(); selectedFiles.splice(idx,1); renderPreviews(); };
+          div.appendChild(img);
+          div.appendChild(btn);
+          previews.appendChild(div);
+        });
+      }
+
+      proofFiles.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files || []);
+        const allowed = files.filter(f => f.type.startsWith('image/'));
+        selectedFiles = selectedFiles.concat(allowed).slice(0,3);
+        if (allowed.length !== files.length) alert('Only image files are allowed');
+        if (selectedFiles.length > 3) alert('Maximum 3 files allowed');
+        renderPreviews();
+        proofFiles.value = '';
+      });
+
+      async function toDataURL(file){
+        return await new Promise((res, rej) => {
+          const fr = new FileReader();
+          fr.onload = ()=>res(fr.result);
+          fr.onerror = rej;
+          fr.readAsDataURL(file);
+        });
+      }
+
+      submitBtn.addEventListener('click', async () => {
+        statusEl.innerText = '';
+        const orderId = document.getElementById('orderId').value.trim();
+        if (!orderId) return alert('Please enter order id for testing');
+        const method = paymentMethodEl.value;
+        if (method !== 'cod' && selectedFiles.length === 0) return alert('Please upload at least one proof image for this payment method');
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+
+        try {
+          // Desktop fallback: if window.desktopApi present, attach as base64 to orders.json
+          if (window.desktopApi && window.desktopApi.readOrdersFile && window.desktopApi.saveOrdersFile) {
+            const orders = window.desktopApi.readOrdersFile();
+            const idx = orders.findIndex(x=>x.id===orderId);
+            if (idx === -1) throw new Error('Order not found in desktop store');
+
+            const dataUrls = await Promise.all(selectedFiles.map(f=>toDataURL(f)));
+            orders[idx].paymentMethod = method;
+            orders[idx].paymentProof = dataUrls; // store array of data URLs
+            orders[idx].paymentUploadedAt = new Date().toISOString();
+            orders[idx].paymentStatus = 'PENDING';
+
+            const res = await window.desktopApi.saveOrdersFile(orders);
+            if (!res || !res.success) throw new Error(res && res.error ? res.error : 'Failed to save orders');
+
+            // Optionally notify server
+            try { await fetch(`/api/orders?id=${orderId}`, {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentMethod:method,paymentStatus:'PENDING'})}); } catch(e){ console.warn('Notify API failed',e); }
+
+            statusEl.innerText = '✓ Payment proof saved to desktop store. Owner can verify it from admin.';
+          } else {
+            // Web flow: send to API endpoint (multipart)
+            const form = new FormData();
+            form.append('orderId', orderId);
+            form.append('paymentMethod', method);
+            selectedFiles.forEach((f, i) => form.append('proof' + i, f));
+
+            const resp = await fetch('/api/orders/payment-proof', { method: 'POST', body: form });
+            if (!resp.ok) throw new Error('Upload failed: ' + resp.statusText);
+            const j = await resp.json();
+            statusEl.innerText = j.message || '✓ Uploaded. Owner will verify.';
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Error: ' + (err.message || err));
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit Payment Proof';
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Own Bazar - Admin Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 400% 400%;
+            animation: fadeInDown 1s ease-out;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .container {
+            display: flex;
+            width: 95%;
+            max-width: 1100px;
+            height: 600px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .left-section {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: white;
+            position: relative;
+        }
+
+        .left-section h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            animation: slideInLeft 1s ease-out 0.2s backwards;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .left-section p {
+            font-size: 16px;
+            line-height: 1.8;
+            opacity: 0.9;
+            animation: slideInLeft 1s ease-out 0.4s backwards;
+            text-align: center;
+        }
+
+        .floating-box {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .float-box-1 {
+            width: 150px;
+            height: 100px;
+            top: 20%;
+            right: 10%;
+            animation-delay: 0s;
+        }
+
+        .float-box-2 {
+            width: 120px;
+            height: 120px;
+            bottom: 15%;
+            left: 10%;
+            animation-delay: 2s;
+        }
+
+        .right-section {
+            flex: 1;
+            background: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .login-form h2 {
+            font-size: 28px;
+            color: #1f2937;
+            margin-bottom: 10px;
+            animation: fadeInDown 1s ease-out 0.3s backwards;
+        }
+
+        .login-form p {
+            color: #6b7280;
+            margin-bottom: 30px;
+            animation: fadeInDown 1s ease-out 0.4s backwards;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease-out 0.5s backwards;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+
+        .form-group input::placeholder {
+            color: #9ca3af;
+        }
+
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+            animation: fadeInUp 1s ease-out 0.6s backwards;
+        }
+
+        .remember-forgot a {
+            color: #667eea;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .remember-forgot a:hover {
+            color: #764ba2;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            animation: fadeInUp 1s ease-out 0.7s backwards;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            animation: pulse 1.5s infinite;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideInLeft 0.5s ease-out;
+            border-left: 4px solid #dc2626;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideInLeft 0.5s ease-out;
+            border-left: 4px solid #10b981;
+        }
+
+        .remember-label {
+            cursor: pointer;
+            font-weight: 400;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .left-section {
+                padding: 30px 20px;
+                min-height: 250px;
+            }
+
+            .floating-box {
+                display: none;
+            }
+
+            .left-section h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+    <script src="/visitor-tracking.js"></script>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <div class="container">
+        <div class="left-section">
+            <div class="floating-box float-box-1"></div>
+            <div class="floating-box float-box-2"></div>
+            
+            <h1>🎉 Own Bazar</h1>
+            <p>
+                Take your e‑commerce to the next level. Use our all‑in‑one admin tools to run your online store.
+            </p>
+        </div>
+
+        <div class="right-section">
+            <div class="login-form">
+                <h2>Welcome! 👋</h2>
+                <p>Sign in to your admin account</p>
+
+                <div class="error-message" id="errorMsg"></div>
+                <div class="success-message" id="successMsg"></div>
+
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <div class="remember-forgot">
+                        <label class="remember-label">
+                            <input type="checkbox" id="rememberMe"> Remember me
+                        </label>
+                        <a href="#">Forgot?</a>
+                    </div>
+
+                    <button type="submit" class="login-btn" id="loginBtn">Sign in</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 50; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Desktop app configurations
+        const CONFIG = {
+            defaultPassword: 'admin123',
+            maxAttempts: 5
+        };
+
+        let loginAttempts = 0;
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
+
+            // Hide messages
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+
+            // Show loading state
+            loginBtn.disabled = true;
+            loginBtn.innerText = '⏳ لاگ ان ہو رہا ہے...';
+
+            // Simulate login delay
+            setTimeout(() => {
+                if (password === CONFIG.defaultPassword) {
+                    // Successful login
+                    successMsg.innerText = '✓ Logged in — redirecting...';
+                    successMsg.style.display = 'block';
+
+                    // Store login info (for dashboard access)
+                    localStorage.setItem('desktopUser', JSON.stringify({ loginTime: new Date().toISOString(), rememberMe: document.getElementById('rememberMe').checked }));
+                    localStorage.setItem('user', JSON.stringify({ name: 'Admin', email: 'admin@ownbazar.com' }));
+
+                    // Redirect to index.html (orders page)
+                    setTimeout(() => { window.location.href = 'index.html'; }, 1200);
+                } else {
+                    // Failed login
+                    loginAttempts++;
+                    
+                    if (loginAttempts >= CONFIG.maxAttempts) {
+                        errorMsg.innerText = '❌ Too many attempts. Please try again later.';
+                        loginBtn.disabled = true;
+                    } else {
+                        errorMsg.innerText = `❌ Incorrect password. ${CONFIG.maxAttempts - loginAttempts} attempts left.`;
+                    }
+                    
+                    errorMsg.style.display = 'block';
+                    loginBtn.disabled = false;
+                    loginBtn.innerText = 'Sign in';
+                }
+            }, 1500);
+        }
+
+        // Auto-focus password field
+        window.addEventListener('load', () => { document.getElementById('password').focus(); });
+    </script>
+</body>
+</html>

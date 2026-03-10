@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+  <!-- htmlhint inline-style-disabled:false -->
+  <!-- webhint-disable no-inline-styles -->
+  <head>
+    <meta charset="utf-8" />
+    <title>Add Product - Desktop Manager</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      body {
+        font-family: Inter, Arial;
+        background: #f3f4f6;
+        margin: 0;
+        padding: 18px;
+      }
+      .wrap {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 0 0 12px;
+        color: #1f2937;
+      }
+      .card {
+        background: #fff;
+        padding: 24px;
+        border-radius: 8px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+      }
+      .form-group {
+        margin-bottom: 16px;
+      }
+      label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+        font-size: 14px;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-family: inherit;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      .btn {
+        padding: 10px 16px;
+        border-radius: 6px;
+        border: 0;
+        cursor: pointer;
+        font-weight: 600;
+        width: 48%;
+        display: inline-block;
+      }
+      .btn-primary {
+        background: #0ea5e9;
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: #0284c7;
+      }
+      .btn-secondary {
+        background: #ddd;
+        color: #374151;
+        margin-left: 4%;
+      }
+      .btn-secondary:hover {
+        background: #ccc;
+      }
+      .toolbar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .msg {
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 16px;
+      }
+      .msg.success {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .msg.error {
+        background: #fee2e2;
+        color: #b91c1c;
+      }
+      .required {
+        color: #dc2626;
+      }
+      .image-item {
+        position: relative;
+        display: inline-block;
+        width: 80px;
+        height: 80px;
+      }
+      .image-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 6px;
+        display: block;
+      }
+      .image-remove {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #dc2626;
+        color: white;
+        border: 0;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+      }
+      .image-remove:hover {
+        background: #b91c1c;
+      }
+    </style>
+    <script src="/visitor-tracking.js"></script>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="toolbar">
+        <button class="btn btn-secondary" onclick="goBack()">← Back</button>
+      </div>
+
+      <h1>Add New Product</h1>
+
+      <div class="card">
+        <div id="msg"></div>
+
+        <form id="form" onsubmit="handleSubmit(event)">
+          <div class="form-group">
+            <label>Product Name <span class="required">*</span></label>
+            <input type="text" id="name" required placeholder="e.g., Premium Wireless Headphones" />
+          </div>
+
+          <div class="form-group">
+            <label>Short Description</label>
+            <input type="text" id="description" placeholder="Brief summary" />
+          </div>
+
+          <div class="form-group">
+            <label>Detailed Description</label>
+            <textarea id="detailedDescription" placeholder="Full product details..."></textarea>
+          </div>
+
+          <!-- hint:no-inline-styles:off -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+            <div class="form-group">
+              <label>Selling Price (Rs.) <span class="required">*</span></label>
+              <input type="number" id="price" required placeholder="0.00" step="0.01" />
+            </div>
+
+            <div class="form-group">
+              <label>Cost Price (Rs.)</label>
+              <input type="number" id="costPrice" placeholder="0.00" step="0.01" />
+            </div>
+          </div>
+
+          <!-- hint:no-inline-styles:off -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px">
+            <div class="form-group">
+              <label>SKU <span class="required">*</span></label>
+              <input type="text" id="sku" required placeholder="e.g., PROD-001" />
+            </div>
+
+            <div class="form-group">
+              <label>Stock Quantity</label>
+              <input type="number" id="quantity" placeholder="0" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Categories (Select one or more)</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; background: #f9fafb; border-radius: 6px;">
+              <label style="display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 0;">
+                <input type="checkbox" name="categories" value="Electronics" /> Electronics
+              </label>
+              <label style="display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 0;">
+                <input type="checkbox" name="categories" value="Accessories" /> Accessories
+              </label>
+              <label style="display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 0;">
+                <input type="checkbox" name="categories" value="Fashion And Beauty" /> Fashion & Beauty
+              </label>
+              <label style="display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 0;">
+                <input type="checkbox" name="categories" value="Home" /> Home
+              </label>
+              <label style="display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 0;">
+                <input type="checkbox" name="categories" value="Gaming" /> Gaming
+              </label>
+              <label style="display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 0;">
+                <input type="checkbox" name="categories" value="Other" /> Other
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Admin Product Code (Private - Only Visible to You)</label>
+            <input type="text" id="adminCode" placeholder="e.g., SKU-12345-A, PROD-CODE" title="Your internal product code" />
+          </div>
+
+          <div class="form-group">
+            <label>Admin Product Link (Private - Only Visible to You)</label>
+            <input type="text" id="adminLink" placeholder="e.g., supplier link, warehouse ref, etc" title="Your internal product reference/link" />
+          </div>
+
+            <div class="form-group">
+              <label>Tags (comma-separated)</label>
+              <input type="text" id="tags" placeholder="e.g., wireless, audio, headphones" />
+            </div>
+
+              <div class="form-group">
+                <label><input type="checkbox" id="isPremium" /> Mark as Premium</label>
+              </div>
+
+              <div class="form-group">
+                <label><input type="checkbox" id="isLatest" /> Mark as Latest (auto-clears after 7 days)</label>
+              </div>
+
+            <div class="form-group">
+              <label>Images</label>
+              <input type="file" id="images" accept="image/*" multiple title="Upload product images" />
+              <!-- hint:no-inline-styles:off -->
+                <div id="preview" style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap"></div>
+                <div style="margin-top:8px; font-size:13px; color:#6b7280">Tip: click × on an image to remove it before saving.</div>
+            </div>
+
+              <div class="form-group">
+                <label>Available Sizes (optional)</label>
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px">
+                  <label style="display:flex; gap:6px; align-items:center"><input type="checkbox" name="sizes" value="XS"> XS</label>
+                  <label style="display:flex; gap:6px; align-items:center"><input type="checkbox" name="sizes" value="S"> S</label>
+                  <label style="display:flex; gap:6px; align-items:center"><input type="checkbox" name="sizes" value="M"> M</label>
+                  <label style="display:flex; gap:6px; align-items:center"><input type="checkbox" name="sizes" value="L"> L</label>
+                  <label style="display:flex; gap:6px; align-items:center"><input type="checkbox" name="sizes" value="XL"> XL</label>
+                  <label style="display:flex; gap:6px; align-items:center"><input type="checkbox" name="sizes" value="XXL"> XXL</label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Product Colors (for smart recommendations)</label>
+                <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px">
+                  <button type="button" class="btn" onclick="extractColors()">Extract colors from images</button>
+                  <span style="color:#6b7280; font-size:13px">(Auto-detects dominant colors)</span>
+                </div>
+                <div id="colorsContainer" style="display:flex; gap:8px; flex-wrap:wrap; padding:8px; background:#fff; border-radius:6px; border:1px dashed #e5e7eb; min-height:36px"></div>
+              </div>
+
+              <div class="form-group">
+                <label>AI Suggestions</label>
+                <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px">
+                  <button type="button" class="btn" onclick="generateSuggestions()">Generate suggestions from images</button>
+                  <span style="color:#6b7280; font-size:13px">(Uses image filename heuristics)</span>
+                </div>
+                <div id="suggestionsContainer" style="padding:8px; background:#fff; border-radius:6px; border:1px dashed #e5e7eb; min-height:36px"></div>
+              </div>
+
+            <!-- hint:no-inline-styles:off -->
+            <div style="text-align: center; margin-top: 24px">
+              <button type="submit" class="btn btn-primary">Add Product</button>
+              <button type="button" class="btn btn-secondary" onclick="goBack()">Cancel</button>
+            </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Track selected files separately so we can remove them individually
+      let selectedFiles = [];
+      let editId = null;
+      let existingImages = [];
+      let extractedColors = [];
+
+      function showMessage(text, type) {
+        const msg = document.getElementById('msg');
+        msg.innerHTML = text;
+        msg.className = `msg ${type}`;
+        if (type === 'success') {
+          setTimeout(() => goBack(), 1500);
+        }
+      }
+
+      const API_BASE = location.protocol === 'file:' ? 'http://localhost:3000' : '';
+
+      function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = (err) => reject(err);
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function removeExistingImage(index) {
+        existingImages.splice(index, 1);
+        updateExistingPreview();
+      }
+
+      async function extractColors() {
+        // Get first available image (existing or newly selected)
+        const imageSource = existingImages.length > 0 ? existingImages[0] : selectedFiles[0];
+        if (!imageSource) {
+          alert('❌ Please select or upload at least one image first');
+          return;
+        }
+
+        try {
+          const imgUrl = typeof imageSource === 'string' ? imageSource : imageSource.src || URL.createObjectURL(imageSource);
+          
+          // Create canvas
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Create image element
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          
+          img.onload = () => {
+            // Set canvas size
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            // Draw image
+            ctx.drawImage(img, 0, 0);
+            
+            // Get image data
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            
+            // Sample every Nth pixel for performance
+            const sampleRate = 50; // Sample every 50th pixel
+            const colors = [];
+            for (let i = 0; i < data.length; i += sampleRate * 4) {
+              const r = data[i];
+              const g = data[i + 1];
+              const b = data[i + 2];
+              const a = data[i + 3];
+              
+              // Skip transparent pixels
+              if (a > 128) {
+                colors.push({ r, g, b });
+              }
+            }
+            
+            // Find dominant colors using k-means-like approach
+            const dominantColors = findDominantColors(colors, 3);
+            
+            // Convert to hex and store
+            extractedColors = dominantColors.map(c => rgbToHex(c.r, c.g, c.b));
+            
+            // Display color chips
+            const colorsContainer = document.getElementById('colorsContainer');
+            colorsContainer.innerHTML = '';
+            extractedColors.forEach(hex => {
+              const chip = document.createElement('div');
+              chip.style.display = 'inline-block';
+              chip.style.width = '40px';
+              chip.style.height = '40px';
+              chip.style.borderRadius = '4px';
+              chip.style.backgroundColor = hex;
+              chip.style.border = '1px solid #ccc';
+              chip.style.marginRight = '8px';
+              chip.title = hex;
+              colorsContainer.appendChild(chip);
+            });
+            
+            alert('✅ Extracted ' + extractedColors.length + ' dominant colors!');
+          };
+          
+          img.onerror = () => {
+            alert('❌ Failed to load image');
+          };
+          
+          img.src = imgUrl;
+        } catch (err) {
+          alert('❌ Error extracting colors: ' + err.message);
+        }
+      }
+
+      function findDominantColors(colors, k) {
+        if (colors.length === 0) return [];
+        
+        // Initialize centroids randomly
+        let centroids = [];
+        for (let i = 0; i < Math.min(k, colors.length); i++) {
+          centroids.push(colors[Math.floor(Math.random() * colors.length)]);
+        }
+        
+        // Simple k-means iteration
+        for (let iter = 0; iter < 5; iter++) {
+          // Assign colors to nearest centroid
+          const clusters = centroids.map(() => []);
+          colors.forEach(color => {
+            let minDist = Infinity;
+            let nearestIdx = 0;
+            centroids.forEach((centroid, idx) => {
+              const dist = Math.pow(color.r - centroid.r, 2) + Math.pow(color.g - centroid.g, 2) + Math.pow(color.b - centroid.b, 2);
+              if (dist < minDist) {
+                minDist = dist;
+                nearestIdx = idx;
+              }
+            });
+            clusters[nearestIdx].push(color);
+          });
+          
+          // Update centroids
+          centroids = clusters.map(cluster => {
+            if (cluster.length === 0) return centroids[0]; // fallback
+            const sumR = cluster.reduce((sum, c) => sum + c.r, 0) / cluster.length;
+            const sumG = cluster.reduce((sum, c) => sum + c.g, 0) / cluster.length;
+            const sumB = cluster.reduce((sum, c) => sum + c.b, 0) / cluster.length;
+            return { r: Math.round(sumR), g: Math.round(sumG), b: Math.round(sumB) };
+          });
+        }
+        
+        return centroids;
+      }
+
+      function rgbToHex(r, g, b) {
+        return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+      }
+
+      function updateExistingPreview() {
+        const preview = document.getElementById('preview');
+        preview.innerHTML = '';
+        // existing images
+        existingImages.forEach((img, idx) => {
+          const src = typeof img === 'string' ? img : img.src || '';
+          const container = document.createElement('div');
+          container.className = 'image-item';
+
+          const imgel = document.createElement('img');
+          imgel.src = src;
+
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'image-remove';
+          removeBtn.type = 'button';
+          removeBtn.title = 'Remove image';
+          removeBtn.textContent = '×';
+          removeBtn.onclick = (e) => { e.preventDefault(); removeExistingImage(idx); };
+
+          container.appendChild(imgel);
+          container.appendChild(removeBtn);
+          preview.appendChild(container);
+        });
+
+        // newly selected files
+        selectedFiles.forEach((file, index) => {
+          const url = URL.createObjectURL(file);
+          const container = document.createElement('div');
+          container.className = 'image-item';
+
+          const img = document.createElement('img');
+          img.src = url;
+
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'image-remove';
+          removeBtn.textContent = '×';
+          removeBtn.type = 'button';
+          removeBtn.onclick = (e) => {
+            e.preventDefault();
+            selectedFiles.splice(index, 1);
+            updateExistingPreview();
+          };
+
+          container.appendChild(img);
+          container.appendChild(removeBtn);
+          preview.appendChild(container);
+        });
+      }
+
+      function updatePreview() { updateExistingPreview(); }
+
+      document.getElementById('images').addEventListener('change', (ev) => {
+        selectedFiles = Array.from(ev.target.files || []);
+        updatePreview();
+      });
+
+      async function handleSubmit(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('name').value;
+        const description = document.getElementById('description').value;
+        const detailedDescription = document.getElementById('detailedDescription').value;
+        const price = document.getElementById('price').value;
+        const costPrice = document.getElementById('costPrice').value;
+        const sku = document.getElementById('sku').value;
+        const quantity = document.getElementById('quantity').value;
+        const selectedCategories = Array.from(document.querySelectorAll('input[name="categories"]:checked')).map(cb => cb.value);
+        const category = selectedCategories.length > 0 ? selectedCategories : [];
+        const tags = document.getElementById('tags').value.split(',').map(t => t.trim()).filter(t => t);
+        const selectedSizes = Array.from(document.querySelectorAll('input[name="sizes"]:checked')).map(cb => cb.value);
+        const selectedSuggestions = Array.from(document.querySelectorAll('.suggestion-checkbox:checked')).map(cb => cb.value);
+        const adminCode = document.getElementById('adminCode').value;
+        const adminLink = document.getElementById('adminLink').value;
+        const colors = extractedColors;
+
+        if (!name || !price || !sku || category.length === 0) {
+          showMessage('❌ Please fill in all required fields including at least one category', 'error');
+          return;
+        }
+
+        try {
+          const adminSecret = window.desktopApi ? await window.desktopApi.getAdminSecret() : '';
+
+          // Convert newly selected images to base64 data URLs using selectedFiles array
+          const base64Images = [];
+          for (const f of selectedFiles) {
+            try {
+              const b = await fileToBase64(f);
+              base64Images.push({ src: b, name: f.name });
+            } catch (err) {
+              console.warn('Failed to convert image', f.name, err);
+            }
+          }
+
+          // Merge existing images and newly added ones (if editing)
+          const imagesPayload = editId ? existingImages.concat(base64Images) : base64Images;
+
+          const url = API_BASE + '/api/products';
+          const method = editId ? 'PUT' : 'POST';
+          const bodyPayload = editId ? { id: editId, name, description, detailedDescription, price: parseFloat(price), costPrice: costPrice ? parseFloat(costPrice) : 0, sku, quantity: quantity ? parseInt(quantity) : 0, category, tags, images: imagesPayload, isPremium: document.getElementById('isPremium').checked, isLatest: document.getElementById('isLatest').checked, adminCode, adminLink, sizes: selectedSizes, suggestions: selectedSuggestions, colors } : { name, description, detailedDescription, price: parseFloat(price), costPrice: costPrice ? parseFloat(costPrice) : 0, sku, quantity: quantity ? parseInt(quantity) : 0, category, tags, images: imagesPayload, isPremium: document.getElementById('isPremium').checked, isLatest: document.getElementById('isLatest').checked, adminCode, adminLink, sizes: selectedSizes, suggestions: selectedSuggestions, colors };
+
+          const response = await fetch(url, {
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+              'x-admin-secret': adminSecret,
+            },
+            body: JSON.stringify(bodyPayload),
+          });
+
+          if (!response.ok) {
+            const txt = await response.text().catch(() => '');
+            showMessage('❌ Failed to save product: ' + (txt || response.statusText), 'error');
+            return;
+          }
+
+          const data = await response.json().catch(() => null);
+
+          if (data && data.success) {
+            showMessage(editId ? '✓ Product updated successfully!' : '✓ Product added successfully!', 'success');
+          } else {
+            showMessage('❌ ' + (data && data.error ? data.error : 'Failed to save product'), 'error');
+          }
+        } catch (err) {
+          showMessage('❌ Error: ' + (err.message || err), 'error');
+        }
+      }
+
+      function goBack() {
+        window.desktopApi.goToProductsList();
+      }
+
+      async function generateSuggestions() {
+        try {
+          const first = (existingImages && existingImages[0]) || null;
+          // prefer existing image, otherwise use newly selected file
+          let src = null;
+          if (first) src = typeof first === 'string' ? first : first.src || null;
+          if (!src && selectedFiles.length > 0) {
+            src = await fileToBase64(selectedFiles[0]);
+          }
+          if (!src) return alert('No image available to analyze');
+
+          const res = await fetch(API_BASE + '/api/ai/suggest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ images: [{ src }], name: document.getElementById('name').value })
+          });
+          if (!res.ok) return alert('Failed to generate suggestions');
+          const data = await res.json().catch(() => null);
+          if (!data || !data.suggestions) return alert('No suggestions returned');
+          renderSuggestions(data.suggestions);
+        } catch (err) {
+          console.warn('generateSuggestions error', err);
+          alert('Error generating suggestions');
+        }
+      }
+
+      function renderSuggestions(list) {
+        const container = document.getElementById('suggestionsContainer');
+        container.innerHTML = '';
+        list.forEach(s => {
+          const lbl = document.createElement('label');
+          lbl.style.marginRight = '8px';
+          lbl.innerHTML = `<input type="checkbox" class="suggestion-checkbox" value="${s.replace(/\"/g,'\\\"')}"> ${s}`;
+          container.appendChild(lbl);
+        });
+        const addBtn = document.createElement('button');
+        addBtn.className = 'btn';
+        addBtn.style.marginLeft = '8px';
+        addBtn.textContent = 'Add selected to Tags';
+        addBtn.onclick = () => {
+          const selected = Array.from(document.querySelectorAll('.suggestion-checkbox:checked')).map(cb => cb.value);
+          if (selected.length === 0) return;
+          const tagsInput = document.getElementById('tags');
+          const existing = tagsInput.value.split(',').map(t => t.trim()).filter(Boolean);
+          tagsInput.value = existing.concat(selected).join(', ');
+        };
+        container.appendChild(addBtn);
+      }
+
+      // If an editId is passed in URL, fetch product and prefill form
+      async function initEditMode() {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const id = params.get('editId');
+          if (!id) return;
+          editId = id;
+          // change title/button
+          document.querySelector('h1').textContent = 'Edit Product';
+          document.querySelector('button[type="submit"]').textContent = 'Save Changes';
+
+          const res = await fetch(API_BASE + `/api/products?id=${encodeURIComponent(editId)}`);
+          if (!res.ok) return console.warn('Failed to fetch product for edit');
+          const json = await res.json().catch(() => null);
+          const prod = json && (json.product || (Array.isArray(json) ? json[0] : json.products && json.products[0]));
+          if (!prod) return console.warn('Product data not found for edit');
+
+          // fill fields
+          document.getElementById('name').value = prod.name || '';
+          document.getElementById('description').value = prod.description || '';
+          document.getElementById('detailedDescription').value = prod.detailedDescription || '';
+          document.getElementById('price').value = prod.price || '';
+          document.getElementById('costPrice').value = prod.costPrice || '';
+          document.getElementById('sku').value = prod.sku || '';
+          document.getElementById('quantity').value = prod.quantity || '';
+          document.getElementById('adminCode').value = prod.adminCode || '';
+          document.getElementById('adminLink').value = prod.adminLink || '';
+          document.getElementById('tags').value = (prod.tags || []).join(', ');
+          document.getElementById('isPremium').checked = !!prod.isPremium;
+          document.getElementById('isLatest').checked = !!prod.isLatest;
+
+          // categories: mark checkboxes
+          const cats = Array.isArray(prod.category) ? prod.category : (prod.category ? [prod.category] : []);
+          document.querySelectorAll('input[name="categories"]').forEach(cb => cb.checked = cats.includes(cb.value));
+
+          // images: show existing images in preview
+              existingImages = prod.images || [];
+              updateExistingPreview();
+              // prefill sizes if present
+              if (prod.sizes && Array.isArray(prod.sizes)) {
+                document.querySelectorAll('input[name="sizes"]').forEach(cb => cb.checked = prod.sizes.includes(cb.value));
+              }
+              // prefill suggestions
+              if (prod.suggestions && Array.isArray(prod.suggestions)) {
+                const container = document.getElementById('suggestionsContainer');
+                container.innerHTML = prod.suggestions.map(s => `<label style="margin-right:8px"><input type=\"checkbox\" class=\"suggestion-checkbox\" value=\"${s.replace(/\"/g,'\\\"')}\"> ${s}</label>`).join('');
+              }
+        } catch (err) {
+          console.warn('initEditMode error', err);
+        }
+      }
+
+      initEditMode();
+
+      console.log('Add product page initialized');
+    </script>
+  </body>
+</html>

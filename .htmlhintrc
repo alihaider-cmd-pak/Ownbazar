@@ -1,0 +1,7 @@
+{
+  "inline-style-disabled": false,
+  "spec-char-escape": false,
+  "attr-unsafe-chars": false,
+  "tag-pair": true,
+  "no-inline-styles": false
+}
